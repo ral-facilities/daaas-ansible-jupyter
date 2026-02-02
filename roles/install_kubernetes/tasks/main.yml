@@ -1,0 +1,10 @@
+- name: Install kubernetes Ubuntu 22.04
+  pip:
+    name:
+    - kubernetes
+  when: ansible_distribution_major_version == "22"
+
+- name: Install kubernetes Ubuntu 24.04
+  ansible.builtin.apt:
+    name: python3-kubernetes
+  when: ansible_distribution_major_version == "24"

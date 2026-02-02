@@ -1,0 +1,22 @@
+- name: Create the working namespace
+  kubernetes.core.k8s:
+    name: "{{ jhub_namespace }}"
+    kind: Namespace
+    state: present
+
+- name: Create NFS yaml files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: "{{ role_path }}/templates/nfs-pvc.j2", dest: "/tmp/nfs-pvc.yaml"}
+    - {src: "{{ role_path }}/templates/nfs-pv.j2", dest: "/tmp/nfs-pv.yaml"}
+
+- name: Enable the training materials NFS share
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ item }}"
+    namespace: "{{ jhub_namespace }}"
+  with_items:
+    - "/tmp/nfs-pvc.yaml"
+    - "/tmp/nfs-pv.yaml"

@@ -1,23 +1,16 @@
 contact_email: "cloud-support@stfc.ac.uk"
-# Longhorn repo
-longhorn_version: "v1.9.0"
-# longhorn_repo_name
+
 longhorn_repo_name: "https://github.com/longhorn/longhorn.git"
-# config file for longhorn helm chart
-longhorn_config_file: ../deploy_jhub/files/longhorn.yaml
+longhorn_version: "v1.9.0"
+longhorn_config_file: ../longhorn/files/longhorn.yaml
+
 # Helm chart version for Jhub (newer version may require newer kubernetes version >=1.17)
-hub_version: "4.2.0"
+jhub_version: "4.2.0"
 # Name of JupyterHub cluster used in load balancer names
-hub_cluster_name: jupyterhub_cluster
-# K8s namespace
-hub_namespace: jupyterhub
-# Helm name of the service
-hub_deployed_name: jupyterhub
-# config file for JupyterHub helm chart (in "/roles/deploy_jhub/files")
-hub_config_file: ../deploy_jhub/files/config.yaml
-# Name of repository
-hub_repo_name: jupyterhub
-# Helm chart repository URL for JupyterHub
-hub_repo_url: https://jupyterhub.github.io/helm-chart/
-# Chart reference for JupyterHub
-hub_chart_ref: jupyterhub/jupyterhub
+jhub_cluster_name: jupyterhub_cluster
+jhub_namespace: jupyterhub
+jhub_deployed_name: jupyterhub
+jhub_config_file: ../deploy_jhub/files/config.yaml
+jhub_repo_name: jupyterhub
+jhub_repo_url: https://jupyterhub.github.io/helm-chart/
+jhub_chart_ref: jupyterhub/jupyterhub

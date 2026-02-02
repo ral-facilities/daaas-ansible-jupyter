@@ -1,0 +1,21 @@
+- name: template config file
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "{{ role_path }}/deploy_jupyterhub/files/config.yaml"
+    
+- name: Install jhub helm repo
+  kubernetes.core.helm_repository:
+    name: "{{ jhub_repo_name }}"
+    repo_url: "{{ jhub_repo_url }}"
+
+- name: Install pre-set version of hub. This may take up to 25m to pull various images...
+  kubernetes.core.helm:
+    chart_ref: "{{ jhub_chart_ref }}"
+    update_repo_cache: yes
+    # Pulled from default
+    name: "{{ jhub_deployed_name }}"
+    chart_version: "{{ jhub_version }}"
+    release_namespace: "{{ jhub_namespace }}"
+    values_files:
+      - "{{ role_path }}/{{ jhub_config_file }}"
+    timeout: "25m"

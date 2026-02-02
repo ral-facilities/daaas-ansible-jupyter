@@ -1,7 +1,9 @@
 - hosts: all # Kubectl is configured from this machine
   gather_facts: true
   roles:
-    - deploy_jhub
-    - deploy_hub
+    - install_kubernetes
+    - longhorn
+    - nfs
+    - deploy_jupyterhub
 
 
