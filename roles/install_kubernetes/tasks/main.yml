@@ -8,3 +8,10 @@
   ansible.builtin.apt:
     name: python3-kubernetes
   when: ansible_distribution_major_version == "24"
+
+- name: install kubernetes rocky
+  ansible.builtin.dnf:
+    name: python3-kubernetes
+    state: present
+  become: true
+  when: ansible_distribution == "Rocky"

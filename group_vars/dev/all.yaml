@@ -34,10 +34,10 @@ nfs_ip:
 # Images
 profiles:
   - profile1:
-    display_name: # Environment name displayed to the user
-    description: # Description of the environment to display to the user
-    default: false
-    image: # image to use. eg:consideratio/singleuser-gpu:v0.3.0
+    display_name: "Default environment" # Environment name displayed to the user
+    description: "This is a simple default environment" # Description of the environment to display to the user
+    default: true
+    image: jupyter/minimal-notebook # image to use
     cpu_limit: 6
     cpu_guarantee: 0.05
     mem_limit: 25G

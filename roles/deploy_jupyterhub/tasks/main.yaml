@@ -1,7 +1,7 @@
 - name: template config file
   ansible.builtin.template:
     src: config.yaml.j2
-    dest: "{{ role_path }}/deploy_jupyterhub/files/config.yaml"
+    dest: "{{ jhub_config_file }}"
     
 - name: Install jhub helm repo
   kubernetes.core.helm_repository:
@@ -16,6 +16,7 @@
     name: "{{ jhub_deployed_name }}"
     chart_version: "{{ jhub_version }}"
     release_namespace: "{{ jhub_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}"
     values_files:
-      - "{{ role_path }}/{{ jhub_config_file }}"
+      - "{{ jhub_config_file }}"
     timeout: "25m"

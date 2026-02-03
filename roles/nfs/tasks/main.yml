@@ -3,6 +3,7 @@
     name: "{{ jhub_namespace }}"
     kind: Namespace
     state: present
+    kubeconfig: "{{ kubeconfig_path }}"
 
 - name: Create NFS yaml files
   ansible.builtin.template:
@@ -17,6 +18,7 @@
     state: present
     src: "{{ item }}"
     namespace: "{{ jhub_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}"
   with_items:
     - "/tmp/nfs-pvc.yaml"
     - "/tmp/nfs-pv.yaml"

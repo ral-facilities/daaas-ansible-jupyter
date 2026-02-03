@@ -1,0 +1,3 @@
+- name: set config file
+  ansible.builtin.set_fact:
+    kubeconfig_path: "/home/{{ ansible_user_id }}/.kube/{{ cluster_name }}.kubeconfig" # this makes sure the user has eneter a cluster name

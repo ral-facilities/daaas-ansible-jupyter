@@ -3,6 +3,7 @@
     name: longhorn-system
     kind: Namespace
     state: present
+    kubeconfig: "{{ kubeconfig_path }}"
 
 - name: Download Longhorn repos
   ansible.builtin.git:
@@ -16,6 +17,7 @@
     state: present
     src: "{{ item }}"
     namespace: longhorn-system
+    kubeconfig: "{{ kubeconfig_path }}"
   with_items:
     - "/tmp/longhorn/deploy/prerequisite/longhorn-iscsi-installation.yaml"
     - "/tmp/longhorn/deploy/prerequisite/longhorn-nfs-installation.yaml"
@@ -30,6 +32,7 @@
     chart_ref: longhorn/longhorn
     name: longhorn
     release_namespace: longhorn-system
+    kubeconfig: "{{ kubeconfig_path }}"
     values_files:
       - "{{ role_path }}/{{ longhorn_config_file }}"
     update_repo_cache: yes

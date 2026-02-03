@@ -1,6 +1,7 @@
 - hosts: all # Kubectl is configured from this machine
   gather_facts: true
   roles:
+    - check_cluster
     - install_kubernetes
     - longhorn
     - nfs
