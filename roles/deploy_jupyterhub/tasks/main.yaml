@@ -17,6 +17,18 @@
     chart_version: "{{ jhub_version }}"
     release_namespace: "{{ jhub_namespace }}"
     kubeconfig: "{{ kubeconfig_path }}"
+    wait: true
     values_files:
       - "{{ jhub_config_file }}"
     timeout: "25m"
+
+- name: Wait for all pods to be ready
+  ansible.builtin.shell: KUBECONFIG=/home/{{ ansible_user_id }}/.kube/{{ cluster_name }}.kubeconfig kubectl get pods -A
+  register: pod_states
+  retries: 30
+  delay: 30
+  until: >
+    pod_states.rc == 0 and 
+    pod_states.stdout_lines | length -1 == pod_states.stdout | regex_findall('Running|Completed') | length and
+    pod_states.stdout_lines | length -1 > 4
+

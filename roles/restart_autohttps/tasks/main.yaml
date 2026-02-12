@@ -1,0 +1,21 @@
+- name: get pods
+  k8s_info:
+    kind: pod
+    namespace: jupyterhub
+    field_selectors:
+      - spec.serviceAccountName=autohttps
+  register: pods
+
+- name: get pod name
+  set_fact:
+    pod_name: "{{ pods.resources | map(attribute='metadata.name') | list | first }}"
+
+- name: delete/restart autohttps pod
+  k8s:
+    api_version: v1
+    kind: pod
+    namespace: jupyterhub
+    name: "{{ pod_name }}"
+    state: absent
+    wait: true
+    # kubeconfig: 

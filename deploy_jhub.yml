@@ -11,5 +11,6 @@
     - longhorn
     - nfs
     - deploy_jupyterhub
+    - restart_autohttps
 
 
