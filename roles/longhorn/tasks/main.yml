@@ -41,6 +41,7 @@
       service:
         ui:
           type: LoadBalancer
+          loadBalancerIP: "{{ longhorn_ip }}"
       persistence:
         defaultClassReplicaCount: 3
         defaultDataLocality: disabled

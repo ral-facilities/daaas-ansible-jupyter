@@ -29,7 +29,9 @@ username: # username style, that gets a number automatically added to the end
 staging_cert: false
 
 # ip address for nfs server
-nfs_ip: 
+nfs_ip: ""
+# ip address for longhorn
+longhorn_ip: ""
 
 # Images
 profiles:
