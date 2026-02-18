@@ -30,8 +30,6 @@ staging_cert: false
 
 # ip address for nfs server
 nfs_ip: ""
-# ip address for longhorn
-longhorn_ip: ""
 
 # Images
 profiles:
