@@ -3,12 +3,14 @@
     name:
     - kubernetes
   when: ansible_distribution_major_version == "22"
+  delegate_to: kubernetes
 
 - name: Install kubernetes Ubuntu 24.04
   ansible.builtin.apt:
     name: python3-kubernetes
   become: true
   when: ansible_distribution_major_version == "24"
+  delegate_to: kubernetes
 
 - name: install kubernetes rocky
   ansible.builtin.dnf:
@@ -16,3 +18,4 @@
     state: present
   become: true
   when: ansible_distribution == "Rocky"
+  delegate_to: kubernetes
