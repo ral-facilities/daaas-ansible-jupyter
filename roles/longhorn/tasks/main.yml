@@ -12,6 +12,7 @@
     kind: Namespace
     state: present
     kubeconfig: "{{ kubeconfig_path }}"
+  delegate_to: kubernetes
 
 - name: Download Longhorn repos
   ansible.builtin.git:
