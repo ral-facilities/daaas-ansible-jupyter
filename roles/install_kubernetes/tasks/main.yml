@@ -16,6 +16,7 @@
   ansible.builtin.dnf:
     name: python3-kubernetes
     state: present
+    use_backend: dnf
   become: true
   when: ansible_distribution == "Rocky"
   delegate_to: kubernetes
