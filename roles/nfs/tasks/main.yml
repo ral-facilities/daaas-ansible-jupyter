@@ -4,6 +4,7 @@
     kind: Namespace
     state: present
     kubeconfig: "{{ kubeconfig_path }}"
+  delegate_to: kubernetes
 
 - name: Create NFS yaml files
   ansible.builtin.template:
@@ -12,6 +13,7 @@
   with_items:
     - {src: "{{ role_path }}/templates/nfs-pvc.j2", dest: "/tmp/nfs-pvc.yaml"}
     - {src: "{{ role_path }}/templates/nfs-pv.j2", dest: "/tmp/nfs-pv.yaml"}
+  delegate_to: kubernetes
 
 - name: Enable the training materials NFS share
   kubernetes.core.k8s:
@@ -22,3 +24,5 @@
   with_items:
     - "/tmp/nfs-pvc.yaml"
     - "/tmp/nfs-pv.yaml"
+  delegate_to: kubernetes
+

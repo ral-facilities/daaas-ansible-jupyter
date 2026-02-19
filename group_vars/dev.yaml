@@ -21,15 +21,15 @@ allowed_groups:
 # These get pre-pended with "admin-"
 # comment out admin, number_of_users, and username if using IAM
 admin_names:
-  - # name1
-  - # name2
-number_of_users: # number of users to create
-username: # username style, that gets a number automatically added to the end
+  - admin1
+  - admin3
+number_of_users: 3
+username: user
 
 staging_cert: true
 
 # ip address for nfs server
-nfs_ip: ""
+# nfs_ip: ""
 
 # Images
 profiles:
@@ -51,5 +51,4 @@ profiles:
       effect: NoSchedule
     # any additional scripts - e.g. clone specific repo
     commands:
-        - # git clone repo 1
-        - # git clone repo 2
+        - git clone https://github.com/stfc/ansible-jupyter

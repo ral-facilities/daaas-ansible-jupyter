@@ -4,11 +4,18 @@
     namespace: jupyterhub
     field_selectors:
       - spec.serviceAccountName=autohttps
+    kubeconfig: "{{ kubeconfig_path }}"
   register: pods
+  delegate_to: kubernetes
+
+- name: debug
+  debug:
+    msg: "{{ pods }}"
 
 - name: get pod name
   set_fact:
     pod_name: "{{ pods.resources | map(attribute='metadata.name') | list | first }}"
+  delegate_to: kubernetes
 
 - name: delete/restart autohttps pod
   k8s:
@@ -18,4 +25,5 @@
     name: "{{ pod_name }}"
     state: absent
     wait: true
-    # kubeconfig: 
+    kubeconfig: "{{ kubeconfig_path }}"
+  delegate_to: kubernetes

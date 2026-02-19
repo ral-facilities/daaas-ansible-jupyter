@@ -2,7 +2,7 @@ contact_email: "cloud-support@stfc.ac.uk"
 
 longhorn_repo_name: "https://github.com/longhorn/longhorn.git"
 longhorn_version: "v1.9.0"
-longhorn_config_file: ../longhorn/files/longhorn.yaml
+longhorn_config_file: "/home/{{ ansible_user_id }}/ansible-jupyter/roles/longhorn/files/longhorn.yaml"
 
 # Helm chart version for Jhub (newer version may require newer kubernetes version >=1.17)
 jhub_version: "4.2.0"
@@ -11,7 +11,7 @@ jhub_cluster_name: jupyterhub_cluster
 jhub_namespace: jupyterhub
 jhub_deployed_name: jupyterhub
 # jhub_config_file: ../deploy_jhub/files/config.yaml
-jhub_config_file: "{{ playbook_dir }}/roles/deploy_jupyterhub/files/config.yaml"
+jhub_config_file: "/home/{{ ansible_user_id }}/ansible-jupyter/roles/deploy_jupyterhub/files/config.yaml"
 jhub_repo_name: jupyterhub
 jhub_repo_url: https://jupyterhub.github.io/helm-chart/
 jhub_chart_ref: jupyterhub/jupyterhub
