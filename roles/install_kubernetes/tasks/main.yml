@@ -12,11 +12,11 @@
   when: ansible_distribution_major_version == "24"
   delegate_to: kubernetes
 
-- name: install kubernetes rocky
-  ansible.builtin.dnf:
-    name: python3-kubernetes
-    state: present
-    use_backend: dnf
-  become: true
-  when: ansible_distribution == "Rocky"
-  delegate_to: kubernetes
+# - name: install kubernetes rocky
+#   ansible.builtin.dnf:
+#     name: python3-kubernetes
+#     state: present
+#     use_backend: dnf4
+#   become: true
+#   when: ansible_distribution == "Rocky"
+#   delegate_to: kubernetes
