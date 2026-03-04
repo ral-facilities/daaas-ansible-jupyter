@@ -3,6 +3,8 @@ ip_address: "130.246.213.50"
 staging_cert: false
 
 admin_names:
+  -
+  -
 number_of_users:
 username:
 
@@ -13,11 +15,18 @@ profiles:
     default: true
     image: jupyter/minimal-notebook 
     gpu_required: false
+    # Please remove '-'s if no commands required
     commands:
+      -
+      -
 
 iris_iam:
   required: false
   client_id:
   client_secret:
   admin_groups:
+    -
+    -
   allowed_groups:
+    -
+    -
