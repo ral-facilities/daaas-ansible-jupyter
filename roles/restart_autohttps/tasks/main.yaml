@@ -4,6 +4,7 @@
     namespace: jupyterhub
     field_selectors:
       - spec.serviceAccountName=autohttps
+    kubeconfig: "{{ kubeconfig_path }}"
   register: pods
 
 - name: get pod name
@@ -18,4 +19,4 @@
     name: "{{ pod_name }}"
     state: absent
     wait: true
-    # kubeconfig: 
+    kubeconfig: "{{ kubeconfig_path }}"
