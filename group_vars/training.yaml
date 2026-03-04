@@ -1,56 +1,23 @@
-# Addresses
 host_domain: "training.jupyter.stfc.ac.uk"
 ip_address: "130.246.213.50"
-
-# IRIS IAM
-# comment out if using usernames below
-iris_iam: false 
-
-client_id: #client ID
-client_secret: # client secret 
-
-admin_groups:
-  - # group1
-  - # group2
-
-allowed_groups:
-  - # group3
-  - # group4
-
-
-# Admins and user accounts
-# These get pre-pended with "admin-"
-# comment out admin, number_of_users, and username if using IAM
-admin_names:
-  - # name1
-  - # name2
-number_of_users: # number of users to create
-username: # username style, that gets a number automatically added to the end
-
 staging_cert: false
 
-# ip address for nfs server
-nfs_ip: ""
+admin_names:
+number_of_users:
+username:
 
-# Images
 profiles:
   - profile1:
-    display_name: # Environment name displayed to the user
-    description: # Description of the environment to display to the user
-    default: false
-    image: # image to use. eg:consideratio/singleuser-gpu:v0.3.0
-    cpu_limit: 6
-    cpu_guarantee: 0.05
-    mem_limit: 25G
-    mem_guarantee: 25G
-    # GPU specific remove if GPU not needed
-    use_gpus: false
-    GPU_info:
-      number_of_gpus: "1"
-      key: nvidia.com/gpu
-      operator: Equal
-      effect: NoSchedule
-    # any additional scripts - e.g. clone specific repo
+    display_name: "Default environment" 
+    description: "This is a simple default environment"
+    default: true
+    image: jupyter/minimal-notebook 
+    gpu_required: false
     commands:
-        - # git clone repo 1
-        - # git clone repo 2
+
+iris_iam:
+  required: false
+  client_id:
+  client_secret:
+  admin_groups:
+  allowed_groups:

@@ -47,17 +47,17 @@ singleuser:
        default: {{ profile.default }}
        kubespawner_override:
          image: {{ profile.image }}
-         cpu_limit: {{ profile.cpu_limit }}
-         cpu_guarantee: {{ profile.cpu_guarantee }}
-         mem_limit: "{{ profile.mem_limit }}"
-         mem_guarantee: "{{ profile.mem_guarantee }}"
-{% if profile.use_gpus is defined and profile.use_gpus is true %}
+         cpu_limit: 6
+         cpu_guarantee: 0.05
+         mem_limit: "30G"
+         mem_guarantee: "30G"
+{% if profile.gpu_required is defined and profile.gpu_required is true %}
          tolerations:
-           - key: {{ profile.GPU_info.key }}
-             operator: {{ profile.GPU_info.operator }}
-             effect: {{ profile.GPU_info.effect }}
+           - key: nvidia.com/gpu
+             operator: Equal
+             effect: NoSchedule
          extra_resource_limits:
-            nvidia.com/gpu: "{{ profile.GPU_info.number_of_gpus}}"
+            nvidia.com/gpu: "1"
 {% endif %}
 
   {% if (profile.commands | default([]) | select('truthy') | list) | length > 0 %}
@@ -78,11 +78,11 @@ singleuser:
 hub:
   config:
     Authenticator:
-    {% if iris_iam is defined and iris_iam is true%}
+    {% if iris_iam is defined and iris_iam.required is true%}
     auto_login: false
     GenericOAuthenticator:
-      client_id: {{ client_id }}
-      client_secret: {{ client_secret }}
+      client_id: {{ iris_iam.client_id }}
+      client_secret: {{ iris_iam.client_secret }}
       oauth_callback_url: "https://{{ host_domain }}/hub/oauth_callback"
       authorize_url: https://iris-iam.stfc.ac.uk/authorize
       token_url: https://iris-iam.stfc.ac.uk/token
@@ -97,11 +97,11 @@ hub:
         state: state
       claim_groups_key: groups
       allowed_groups:
-{% for allowed_group in allowed_groups %}
+{% for allowed_group in iris_iam.allowed_groups %}
         - {{ allowed_group }}
 {% endfor %}
       admin_groups:
-{% for admin_group in admin_groups %}
+{% for admin_group in iris_iam.admin_groups %}
         - {{ admin_group }}
 {% endfor %}
       manage_groups: true
