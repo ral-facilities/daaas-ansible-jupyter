@@ -4,7 +4,7 @@
     PATH: "{{ ansible_env.PATH }}"
   vars_files:
     - group_vars/all.yaml
-    - "group_vars/{{ jhub }}.yaml"
+    - "group_vars/{{ env }}.yaml"
   roles:
     - check_cluster
     - install_kubernetes
