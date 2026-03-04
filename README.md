@@ -52,7 +52,7 @@ sudo snap install helm --classic
 ### Instructions
 
 1. Deploy a capi cluster
-2. Ensure that you can access the cluster from the machine you are running this playbook from (`kubectl get no`)
+2. Ensure that you can access the cluster from the machine you are running this playbook from (`kubectl get nodes`)
 3. git clone this repo (`git clone https://github.com/stfc/ansible-jupyter`)
 4. Install Ansible requirements `ansible-galaxy collection install -r requirements.yml`
 5. Uncomment the correct line for your environment in `inventory/hosts`
@@ -65,25 +65,22 @@ sudo snap install helm --classic
       </p>
     - `admin_names`: The admin usernames to be created (these will be prepended with `admin-`)
     - `number_of_users`: The number of user accounts to be created
-    - `staging_cert`: whether to use acme to generate a staging cert
-    - `nfs_ip`: The IP address of the nfs server
+    - `username`: Username style to use (these with have numbers added to the end)
       </p>
     - `display_name`: The name of the environment displayed to the user
     - `description`: The description of the environment displayed to the user
     - `default`: Whether the environment is the default environment or not
     - `image`: The image to use for generating the environment
-    - `cpu_limit`: The maximum number of CPU cores a user instance can have
-    - `cpu_guarantee`: The minimum amount of CPU a user instance can have
-    - `mem_limit`: The maximum amount of memory a user instance can have
-    - `mem_guarantee`: The minimum amount of memory a user instance can have 
+    - `gpu_required`: If a GPU is required for this profile
+    - `commands`: List of commands (git clones) to run on the deployed instances/images
       </p>
-    - `use_gpus`: Whether to use GPUs
-    - `number_of_gpus`: The number of GPUs to use
-    - `key`: Toleration key. Usually: nvidia.com/gpu
-    - `operator`: How the key taint should be matched. Usually: `Equals`
-    - `effect`: Whether to schedule on node if key taint not matched. Usually: `NoSchedule`
-       </p>
-    - `commands`: The commands (git clones) to run on the deployed instances/images
+    - `iris_iam`: Detials for setting up iris-iam
+      - `required`: If iris-iam is required or not
+      - `client_id`: Client ID from iris iam
+      - `client_secret`: Client secret from iris iam
+      - `admin_groups`: List of iris iam groups to use for admins
+      - `allowed_groups`: List of allowed iris iam groups to use for users
+
 6. Make sure kubeconfig is in ~/.kube
 7. Run the playbook and pass in name of the kubeconfig filename (without extnsion) and the deployment version: 
 `ansible-playbook deploy_jhub.yml -e "cluser_name=kubeconfig-name" -e "jhub=dev-or-prod-or-training"`
