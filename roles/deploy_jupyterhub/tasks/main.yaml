@@ -12,10 +12,10 @@
   kubernetes.core.helm:
     chart_ref: "{{ jhub_chart_ref }}"
     update_repo_cache: yes
-    # Pulled from default
     name: "{{ jhub_deployed_name }}"
     chart_version: "{{ jhub_version }}"
     release_namespace: "{{ jhub_namespace }}"
+    create_namespace: true
     kubeconfig: "{{ kubeconfig_path }}"
     wait: true
     values_files:

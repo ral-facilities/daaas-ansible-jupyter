@@ -9,7 +9,6 @@
     - check_cluster
     - install_kubernetes
     - longhorn
-    - nfs
     - deploy_jupyterhub
     - restart_autohttps
 

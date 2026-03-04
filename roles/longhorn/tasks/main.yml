@@ -4,7 +4,7 @@
 
 - name: Set fact for floating IP
   ansible.builtin.set_fact:
-    longhorn_ip: "{{ fip_tmp.stdout_lines }}"
+    longhorn_ip: "{{ fip_tmp.stdout }}"
 
 - name: Create Longhorn namespace
   kubernetes.core.k8s:
