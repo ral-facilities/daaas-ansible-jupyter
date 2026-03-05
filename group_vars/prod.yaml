@@ -1,5 +1,6 @@
 host_domain: "jupyter.stfc.ac.uk"
-ip_address: "130.246.214.172"
+ip_address: "130.246.213.94"
+longhorn_ip: "130.246.213.77"
 staging_cert: false
 
 admin_names:

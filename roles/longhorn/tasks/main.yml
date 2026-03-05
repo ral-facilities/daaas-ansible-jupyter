@@ -1,10 +1,12 @@
 - name: Get free floating IP
   shell: openstack floating ip list -c "Floating IP Address" -c "Port" -f json --os-cloud openstack | jq -r '.[] | select(.Port==null) | ."Floating IP Address"' | head -n 1
   register: fip_tmp
+  when: env == "dev"
 
 - name: Set fact for floating IP
   ansible.builtin.set_fact:
     longhorn_ip: "{{ fip_tmp.stdout }}"
+  when: env == "dev"
 
 - name: Create Longhorn namespace
   kubernetes.core.k8s:
