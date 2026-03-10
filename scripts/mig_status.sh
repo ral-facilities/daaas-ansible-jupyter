@@ -1,6 +1,19 @@
 #! /bin/bash
 RESET="\e[0m"
-kubectl get nodes -o json > tmp.json
+
+while getopts "k:" arg; do
+  case $arg in
+    k) kubeconfig=$OPTARG
+  esac
+done
+
+if [ -z "$kubeconfig" ] 
+then
+  kubectl get nodes -o json > tmp.json
+else
+  KUBECONFIG=$kubeconfig kubectl get nodes -o json > tmp.json
+fi
+
 
 jq -c '.items[]' tmp.json | while read -r obj; do
     name=$(jq -r '.metadata.annotations["cluster.x-k8s.io/machine"]' <<< "$obj")
