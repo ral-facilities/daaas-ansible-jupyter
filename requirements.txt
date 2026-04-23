@@ -2,4 +2,3 @@ ansible
 setuptools 
 setuptools-rust 
 pyyaml 
-#kubernetes
