@@ -19,16 +19,28 @@ proxy:
 singleuser:
   # Use new UI by default as the old UI is being deprecated
   #  defaultUrl: "/lab"
-defaultUrl: "/lab"
+  defaultUrl: "/lab"
   extraEnv:
     JUPYTERHUB_ACTIVITY_INTERVAL: "3600"
   events: true
-
   storage:
     type: dynamic
     capacity: 10Gi
     dynamic:
       storageClass: longhorn
+{% if manila.required is true %}
+    extraVolumes:
+      - name: manila
+        persistentVolumeClaim:
+          claimName: {{ manila.share_name }}
+          namespace: default
+          readOnly: true
+    extraVolumeMounts:
+      - name: manila
+        mountPath: {{ manila.mount_path }}
+        readOnly: false
+{% endif %}
+
 
   # Default profile, this is what the placeholders will use
   startTimeout: 3600 # seconds == 60 minutes

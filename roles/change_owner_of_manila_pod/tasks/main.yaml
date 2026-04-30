@@ -1,0 +1,7 @@
+- name: Copy over init pod
+  copy:
+    src: init_pod.yaml
+    dest: /home/{{ ansible_user_id }}/{{ cluster_name }}/init_pod.yaml
+
+- name: Apply init pod
+  ansible.builtin.command: kubectl apply -f /home/{{ ansible_user_id }}/{{ cluster_name }}/init_pod.yaml --kubeconfig {{ kube_config }}
