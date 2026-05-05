@@ -1,4 +1,0 @@
-- name: template config file
-  ansible.builtin.template:
-    src: config.yaml.j2
-    dest: ~/ansible-jupyter/roles/deploy_jhub/files/config.yaml

@@ -1,7 +1,15 @@
-- hosts: all # Kubectl is configured from this machine
+- hosts: localhost # Kubectl is configured from this machine
   gather_facts: true
+  environment:
+    PATH: "{{ ansible_env.PATH }}"
+  vars_files:
+    - group_vars/all.yaml
+    - "group_vars/{{ env }}.yaml"
   roles:
-    - deploy_jhub
-    - deploy_hub
+    - check_cluster
+    - install_kubernetes
+    - longhorn
+    - deploy_jupyterhub
+    - restart_autohttps
 
 
