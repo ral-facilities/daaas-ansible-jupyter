@@ -21,6 +21,7 @@ profiles:
     commands:
       -
       -
+
 manila:
   required: false
   mount_path: "/home/jovyan/manila"
