@@ -11,5 +11,7 @@
     - longhorn
     - deploy_jupyterhub
     - restart_autohttps
+    - role: change_owner_of_manila_pod
+      when: manila.required == true
 
 

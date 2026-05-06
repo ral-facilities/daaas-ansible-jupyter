@@ -2,6 +2,7 @@ host_domain: "training.jupyter.stfc.ac.uk"
 ip_address: "130.246.213.196"
 longhorn_ip: "130.246.213.143"
 staging_cert: false
+kube_config: /home/{{ ansible_user_id }}/.kube/{{ cluster_name }}.kubeconfig
 
 admin_names:
   -
@@ -20,6 +21,11 @@ profiles:
     commands:
       -
       -
+
+manila:
+  required: false
+  mount_path: "/home/jovyan/manila"
+  share_name: new-cephfs-share-pvc
 
 iris_iam:
   required: false
