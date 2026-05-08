@@ -3,3 +3,6 @@
 *pem
 *roles/deploy_jhub/files/config.yaml
 *roles/deploy_jupyterhub/files/config.yaml
+.ansible/
+.vscode/
+ansible.log

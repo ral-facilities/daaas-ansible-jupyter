@@ -1,0 +1,43 @@
+---
+- name: Check if Longhorn is in helm releases
+  kubernetes.core.helm_info:
+    release_namespace: "{{ longhorn_namespace }}"
+    release_name: "{{ longhorn_deployed_name }}"
+    kubeconfig: "{{ kubeconfig_path }}"
+  register: longhorn_helm
+
+- name: Helm uninstall longhorn
+  when: longhorn_helm.status is defined
+  block:
+    - name: Patch Longhorn deleting confirmation flag
+      kubernetes.core.k8s:
+        state: patched
+        namespace: "{{ longhorn_namespace }}"
+        api_version: longhorn.io/v1beta2
+        kind: Setting
+        name: deleting-confirmation-flag
+        merge_type: merge
+        definition:
+          value: "true"
+    - name: Helm uninstall longhorn
+      kubernetes.core.helm:
+        release_namespace: "{{ longhorn_namespace }}"
+        release_name: "{{ longhorn_deployed_name }}"
+        state: absent
+        wait: true
+        kubeconfig: "{{ kubeconfig_path }}"
+        timeout: "10m"
+    - name: Delete Longhorn namespace
+      kubernetes.core.k8s:
+        state: absent
+        kind: Namespace
+        name: "{{ longhorn_namespace }}"
+        wait: true
+        timeout: "3m"
+
+- name: Delete longhorn loadbalancer
+  openstack.cloud.loadbalancer:
+    cloud: openstack
+    name: kube_service_{{ cluster_name }}_{{ longhorn_namespace }}_{{ longhorn_deployed_name }}-frontend
+    state: absent
+    delete_floating_ip: false

@@ -9,8 +9,5 @@
     - "group_vars/{{ env }}.yaml"
   roles:
     - check_cluster
-    - deploy_longhorn
-    - deploy_jupyterhub
-    - restart_autohttps
-    - role: change_owner_of_manila_pod
-      when: manila.required == true
+    - destroy_jupyterhub
+    - destroy_longhorn

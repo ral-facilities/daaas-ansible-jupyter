@@ -1,0 +1,34 @@
+---
+- name: Check if jupyterhub is in helm releases
+  kubernetes.core.helm_info:
+    release_namespace: "{{ jhub_namespace }}"
+    release_name: "{{ jhub_deployed_name }}"
+    kubeconfig: "{{ kubeconfig_path }}"
+  register: jupyterhub_helm
+
+- name: Uninstall jupyterhub
+  when: jupyterhub_helm.status is defined
+  block:
+    - name: Helm uninstall jupyterhub
+      kubernetes.core.helm:
+        release_namespace: "{{ jhub_namespace }}"
+        release_name: "{{ jhub_deployed_name }}"
+        state: absent
+        wait: true
+        kubeconfig: "{{ kubeconfig_path }}"
+        timeout: "10m"
+
+    - name: Delete jupyterhub namespace
+      kubernetes.core.k8s:
+        state: absent
+        kind: Namespace
+        name: "{{ jhub_namespace }}"
+        wait: true
+        timeout: "3m"
+
+- name: Delete jupyterhub loadbalancer
+  openstack.cloud.loadbalancer:
+    cloud: openstack
+    name: kube_service_{{ cluster_name }}_{{ jhub_deployed_name }}_proxy_public
+    state: absent
+    delete_floating_ip: false
