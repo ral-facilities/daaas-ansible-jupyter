@@ -1,0 +1,18 @@
+---
+plugin: openstack.cloud.openstack
+
+groups:
+  bootstrap: "'kubernetes-ansible-bootstrap' in (openstack.tags|list)"
+
+compose:
+  ansible_user: "'ubuntu'"
+  ansible_python_interpreter: "'/opt/ansible-venv/bin/python'"
+
+legacy_groups: false
+
+all_projects: false
+expand_hostvars: false
+fail_on_errors: true
+only_clouds:
+  - "openstack"
+strict: true
