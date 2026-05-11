@@ -7,7 +7,7 @@ while getopts "k:" arg; do
   esac
 done
 
-if [ -z "$kubeconfig" ] 
+if [ -z "$kubeconfig" ]
 then
   kubectl get nodes -o json > tmp.json
 else
