@@ -1,0 +1,35 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: busybox-chown
+  namespace: jupyterhub
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: busybox
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:100 /home/jovyan/manila"]
+          securityContext:
+            runAsUser: 0
+            capabilities:
+              add: ["CHOWN"]
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          volumeMounts:
+            - name: new-cephfs-share-pvc
+              mountPath: /home/jovyan/manila
+      volumes:
+        - name: new-cephfs-share-pvc
+          persistentVolumeClaim:
+            claimName: new-cephfs-share-pvc
+            readOnly: false

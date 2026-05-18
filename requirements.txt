@@ -1,4 +1,4 @@
-ansible 
-setuptools 
-setuptools-rust 
-pyyaml 
+ansible
+setuptools
+setuptools-rust
+pyyaml
