@@ -1,11 +1,11 @@
 contact_email: "SUPPORTANALYSIS@stfc.ac.uk"
 
 longhorn_repo_name: "https://github.com/longhorn/longhorn.git"
-longhorn_version: "v1.9.0"
+longhorn_version: "v1.11.2"
 longhorn_config_file: ../longhorn/files/longhorn.yaml
 
 # Helm chart version for Jhub (newer version may require newer kubernetes version >=1.17)
-jhub_version: "4.2.0"
+jhub_version: "4.3.5"
 # Name of JupyterHub cluster used in load balancer names
 jhub_cluster_name: jupyterhub_cluster
 jhub_namespace: jupyterhub

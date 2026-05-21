@@ -15,23 +15,6 @@
     state: present
     kubeconfig: "{{ kubeconfig_path }}"
 
-- name: Download Longhorn repos
-  ansible.builtin.git:
-    repo: "{{ longhorn_repo_name }}"
-    dest: "/tmp/longhorn"
-    version: "{{ longhorn_version }}"
-    update: true # Automatically pull bug-fixes in
-
-- name: Install Longhorn prerequisites
-  kubernetes.core.k8s:
-    state: present
-    src: "{{ item }}"
-    namespace: longhorn-system
-    kubeconfig: "{{ kubeconfig_path }}"
-  with_items:
-    - "/tmp/longhorn/deploy/prerequisite/longhorn-iscsi-installation.yaml"
-    - "/tmp/longhorn/deploy/prerequisite/longhorn-nfs-installation.yaml"
-
 - name: Install Longhorn helm repo
   kubernetes.core.helm_repository:
     name: longhorn
