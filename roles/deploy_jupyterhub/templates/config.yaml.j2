@@ -116,8 +116,7 @@ hub:
         - {{ admin_group }}
 {% endfor %}
       manage_groups: true
-    JupyterHub:
-      authenticator_class: generic-oauth
+
 
      {% else %}
   admin_users:
@@ -125,7 +124,6 @@ hub:
   {% for admin_name in (admin_names) %}
       - admin-{{ admin_name }}
   {% endfor %}
-    check_common_password: true
       open_signup: false
       allowed_users:
   #  Weird indentation is expected in .j2 file
@@ -136,7 +134,11 @@ hub:
 {% endfor %}
 
     JupyterHub:
-      authenticator_class: nativeauthenticator.NativeAuthenticator
+      authenticator_class: "shared-password"
+    SharedPasswordAuthenticator:
+      admin_password: "{{ adminpassword }}"
+      user_password: "{{ userpassword }}"
+
     {% endif %}
 
   consecutiveFailureLimit: 0
