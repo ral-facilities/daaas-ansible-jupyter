@@ -84,9 +84,9 @@ sudo snap install helm --classic
       - `admin_groups`: List of iris iam groups to use for admins
       - `allowed_groups`: List of allowed iris iam groups to use for users
 
-7. Make sure kubeconfig is in ~/.kube
-8. Run the playbook and pass in name of the kubeconfig filename (without extnsion) and the deployment version:
-`ansible-playbook deploy_jhub.yml -e "cluster_name=kubeconfig-name" -e "env=dev-or-prod-or-training"`
+6. Make sure kubeconfig is in ~/.kube
+7. Run the playbook and pass in name of the kubeconfig filename (without extnsion) and the deployment version:
+`ansible-playbook deploy_jhub.yml -e "cluser_name=kubeconfig-name" -e "env=dev-or-prod-or-training"`
 
 ## Customising your jupyterhub deployment
 These are settings/variables to chagne/add to customise your jupyterhub deployment, and are optional.
