@@ -9,18 +9,7 @@
     - check_cluster
     - install_kubernetes
     - longhorn
-    - set_passwords
     - deploy_jupyterhub
     - restart_autohttps
     - role: change_owner_of_manila_pod
       when: manila.required == true
-
-  post_tasks:
-    - name: Print admin password
-      ansible.builtin.debug:
-        msg: "Admin password: {{ adminpassword }}"
-    - name: Print user password
-      ansible.builtin.debug:
-        msg: "User password: {{ userpassword }}"
-
-

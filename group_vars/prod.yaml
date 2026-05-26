@@ -7,8 +7,12 @@ kube_config: /home/{{ ansible_user_id }}/.kube/{{ cluster_name }}.kubeconfig
 admin_names:
   -
   -
+# password must bet atleast 32 characters long to deploy correctly
+admin_password:
 number_of_users:
 username:
+# password must bet atleast 32 characters long to deploy correctly
+user_password:
 
 profiles:
   - profile1:
