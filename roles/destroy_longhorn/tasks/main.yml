@@ -36,7 +36,7 @@
         kind: Namespace
         name: "{{ longhorn_namespace }}"
         wait: true
-        wait_timeout: "3m"
+        wait_timeout: 300
         kubeconfig: "{{ kubeconfig_path }}"
 
 - name: Delete longhorn loadbalancer
