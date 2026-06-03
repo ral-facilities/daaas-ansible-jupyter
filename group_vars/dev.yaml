@@ -13,7 +13,6 @@ number_of_users:
 username:
 # password must bet atleast 32 characters long to deploy correctly
 user_password:
-
 profiles:
   - profile1:
     display_name: "Default environment"
