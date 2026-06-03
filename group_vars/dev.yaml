@@ -14,7 +14,7 @@ profiles:
     display_name: "Default environment"
     description: "This is a simple default environment"
     default: true
-    ram: "1G"
+    ram: "5G"
     image: jupyter/minimal-notebook
     gpu_required: false
     # Please remove '-'s if no commands required
