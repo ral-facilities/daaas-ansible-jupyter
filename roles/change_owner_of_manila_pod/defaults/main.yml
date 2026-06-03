@@ -1,0 +1,2 @@
+---
+init_job_path: "/home/{{ ansible_user_id }}/{{ cluster_name }}/init_job.yaml"

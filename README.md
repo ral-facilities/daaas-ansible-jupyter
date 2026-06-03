@@ -2,21 +2,24 @@
 # Ansible JupyterHub Server with Prometheus Stacks for STFC Cloud Openstacks
 Provides a JupyterHub Service on an existing Openstack Cluster. This uses the helm chart provided by [ZeroToJupyterHub](https://github.com/jupyterhub/zero-to-jupyterhub-k8s).
 ## Contents
-- [Features](#features)
-- [Limitations](#limitations)
-- [Requirements](#requirements)
-  * [Local Environment Setup](#local-environment-setup)
-- [Deploying JupyterHub](#deploying-jupyterhub)
-  * [Instructions](#instructions)
-- [Customising your jupyterhub deployment](#Customising-your-jupyterhub-deployment)
-  * [HTTPS Config](#HTTPS-Config)
-  * [SSL Setup](#SSL-Setup)
-  * [Note on Renewal Limits](#Note-on-Renewal-Limits)
-- [Maintenance and Notes](#Maintenance-and-Notes)
-    * [Single hub instance](#Single-hub-instance)
-    * [Autoscaler](#Autoscaler)
-    * [Proxy_public service notes](#Proxy_public-service-notes)
-    * [Longhorn](#Longhorn)
+- [Ansible JupyterHub Server with Prometheus Stacks for STFC Cloud Openstacks](#ansible-jupyterhub-server-with-prometheus-stacks-for-stfc-cloud-openstacks)
+  - [Contents](#contents)
+  - [Features](#features)
+  - [Limitations](#limitations)
+  - [Requirements](#requirements)
+  - [Deploying JupyterHub](#deploying-jupyterhub)
+    - [Instructions](#instructions)
+  - [Customising your jupyterhub deployment](#customising-your-jupyterhub-deployment)
+    - [HTTPS Config](#https-config)
+      - [Setting up DNS for Lets Encrypt](#setting-up-dns-for-lets-encrypt)
+      - [Using existing TLS Certificate](#using-existing-tls-certificate)
+    - [SSL Setup](#ssl-setup)
+    - [Note on Renewal Limits](#note-on-renewal-limits)
+  - [Maintenance and Notes](#maintenance-and-notes)
+    - [Single hub instance](#single-hub-instance)
+    - [Autoscaler](#autoscaler)
+    - [Proxy\_public service notes](#proxy_public-service-notes)
+    - [Longhorn](#longhorn)
 
 
 ## Features
@@ -55,8 +58,8 @@ sudo snap install helm --classic
 2. Ensure that you can access the cluster from the machine you are running this playbook from (`kubectl get nodes`)
 3. git clone this repo (`git clone https://github.com/stfc/ansible-jupyter`)
 4. Install Ansible requirements `ansible-galaxy collection install -r requirements.yml`
-5. Uncomment the correct line for your environment in `inventory/hosts`
-6. Fill in the variables for your given environment in `group_vars/<environment>/all.yaml`
+5. Update the dynamic inventory details in `openstack.yml`
+6. Fill in the variables for your given environment in `group_vars/<environment>.yaml`
     - `iris_iam`: If true uses iris iam groups for admin and user accounts, if false uses jupyterhub deployed accounts instead
     - `client_id`: Client ID from iris iam
     - `client_secret`: Client secret from iris iam
@@ -82,7 +85,7 @@ sudo snap install helm --classic
       - `allowed_groups`: List of allowed iris iam groups to use for users
 
 6. Make sure kubeconfig is in ~/.kube
-7. Run the playbook and pass in name of the kubeconfig filename (without extnsion) and the deployment version: 
+7. Run the playbook and pass in name of the kubeconfig filename (without extnsion) and the deployment version:
 `ansible-playbook deploy_jhub.yml -e "cluser_name=kubeconfig-name" -e "env=dev-or-prod-or-training"`
 
 ## Customising your jupyterhub deployment
@@ -101,7 +104,7 @@ Simply ensure you have:
 
 Update the config file with the domain name.
 
-#### Using existing TLS Certificate 
+#### Using existing TLS Certificate
 
 Alternatively, if you already have an existing certificate and don't want to expose the service externally you can manually provide a certificate.
 
@@ -128,7 +131,7 @@ We need to force the HTTPS issuer to retry:
 
 ### Note on Renewal Limits
 
-A maximum of 5 certificates will be issued to a set of domain names per week (on a 7 day rolling basis). Updating a deployment does not count towards this as Kubernetes holds the TLS secret. 
+A maximum of 5 certificates will be issued to a set of domain names per week (on a 7 day rolling basis). Updating a deployment does not count towards this as Kubernetes holds the TLS secret.
 
 However, `helm uninstall jhub` will delete the certificate counting towards another when redeployed.
 
@@ -175,4 +178,3 @@ To fix this:
 Longhorn's configuration is defined by the `release_values` in `roles/deploy_hub/tasks/main.yml`. By default, this creates a load balancer for the UI labelled `longhorn-frontend`, which must be associated with a prepared FIP, as described for JupyterHub's `proxy_public` load balancer.
 
 If you are required to uninstall and reinstall Longhorn, is may be necessary to manually delete the load balacer on OpenStack and the service (`kubectl get services -n longhorn-system` will list these). You must then restart the OpenStack controller manager pods before a new Longhorn load balancer can be created successfully.
-

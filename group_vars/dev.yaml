@@ -1,20 +1,21 @@
+---
 host_domain: "test.jupyter.stfc.ac.uk"
 ip_address: "130.246.213.116"
+longhorn_ip: "130.246.83.115"
 staging_cert: true
-kube_config: /home/{{ ansible_user_id }}/.kube/{{ cluster_name }}.kubeconfig
 
 admin_names:
   -
   -
 number_of_users:
 username:
-
 profiles:
   - profile1:
-    display_name: "Default environment" 
+    display_name: "Default environment"
     description: "This is a simple default environment"
     default: true
-    image: jupyter/minimal-notebook 
+    ram: "5G"
+    image: jupyter/minimal-notebook
     gpu_required: false
     # Please remove '-'s if no commands required
     commands:
