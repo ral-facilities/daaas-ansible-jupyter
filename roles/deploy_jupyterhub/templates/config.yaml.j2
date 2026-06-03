@@ -116,7 +116,8 @@ hub:
         - {{ admin_group }}
 {% endfor %}
       manage_groups: true
-
+    JupyterHub:
+      authenticator_class: generic-oauth
      {% else %}
   admin_users:
   #  Weird indentation is expected in .j2 file
