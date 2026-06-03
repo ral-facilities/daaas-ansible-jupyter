@@ -1,4 +1,14 @@
 ---
+- name: Check user password meets requirements
+  ansible.builtin.fail:
+    msg: "User password must be at least 32 characters"
+  when: user_password | length < 32
+
+- name: Check admin password meets requirements
+  ansible.builtin.fail:
+    msg: "Admin password must be at least 32 characters"
+  when: admin_password | length < 32
+
 - name: Template config file
   ansible.builtin.template:
     src: config.yaml.j2
