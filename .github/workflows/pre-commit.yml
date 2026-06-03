@@ -1,0 +1,44 @@
+name: pre-commit
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.11'
+
+      - name: Get changed files
+        id: changes
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+
+          files="$(git diff --diff-filter=d --name-only "$base" "$head")"
+
+          echo "Changed files:"
+          echo "$files"
+
+          # Convert newline list into space-separated args
+          echo "files=$(echo "$files" | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Run pre-commit (changed files only)
+        uses: pre-commit/action@v3.0.1
+        if: steps.changes.outputs.files != ''
+        with:
+          extra_args: >-
+            --files ${{ steps.changes.outputs.files }}
+            --hook-stage=pre-push

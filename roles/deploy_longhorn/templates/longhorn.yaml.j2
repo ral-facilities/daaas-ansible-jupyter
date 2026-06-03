@@ -8,6 +8,15 @@ defaultSettings:
   allowVolumeCreationWithDegradedAvailability: true
   nodeDrainPolicy: "block-for-eviction"
 
+service:
+  ui:
+    type: LoadBalancer
+    loadBalancerIP: "{{ longhorn_ip }}"
+    annotations:
+      # Don't delete the floating ip when deleting loadbalancers
+      # prevents errors when deleting clusters, leave as true
+      loadbalancer.openstack.org/keep-floatingip: "true"
+
 persistence:
   defaultClassReplicaCount: 3
   defaultDataLocality: disabled

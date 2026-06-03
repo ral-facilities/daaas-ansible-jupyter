@@ -1,5 +1,10 @@
+---
 collections:
-  # K8s deps
+  - name: openstack.cloud
+    version: ">=2.4.0"
+
   - name: kubernetes.core
-  - name: community.kubernetes
+    version: ">=6.4.0"
+
   - name: community.general
+    version: ">=10.3.0"

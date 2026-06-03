@@ -1,0 +1,19 @@
+---
+- name: Template Longhorn config file
+  ansible.builtin.template:
+    src: longhorn.yaml.j2
+    dest: "{{ longhorn_config_file }}"
+    mode: "0664"
+
+- name: Install Longhorn (waits up to 10 minutes)
+  kubernetes.core.helm:
+    chart_ref: "{{ longhorn_chart_ref }}"
+    chart_version: "{{ longhorn_version }}"
+    chart_repo_url: "{{ longhorn_repo_url }}"
+    release_name: "{{ longhorn_deployed_name }}"
+    create_namespace: true
+    release_namespace: "{{ longhorn_namespace }}"
+    kubeconfig: "{{ kubeconfig_path }}"
+    values_files: "{{ longhorn_config_file }}"
+    wait: true
+    timeout: "10m"

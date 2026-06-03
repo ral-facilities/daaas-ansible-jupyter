@@ -1,4 +1,5 @@
-ansible 
-setuptools 
-setuptools-rust 
-pyyaml 
+ansible-core
+pyyaml
+openstacksdk>=1.0.0
+setuptools
+setuptools-rust
