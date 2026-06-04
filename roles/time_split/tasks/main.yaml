@@ -1,0 +1,63 @@
+- hosts: localhost
+  tasks:
+
+  - name: Create GPU time share config map
+    kubernetes.core.k8s:
+      state: present
+      kubeconfig: "{{ kube_config }}"
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: ansible-test
+          namespace: gpu-operator
+        data:
+            users2: |-
+              version: v1
+              sharing:
+                timeSlicing:
+                  resources:
+                  - name: nvidia.com/gpu
+                    replicas: 2
+            users3: |-
+              version: v1
+              sharing:
+                timeSlicing:
+                  resources:
+                  - name: nvidia.com/gpu
+                    replicas: 3
+            users4: |-
+              version: v1
+              sharing:
+                timeSlicing:
+                  resources:
+                  - name: nvidia.com/gpu
+                    replicas: 4
+
+  - name: Patch config map
+    kubernetes.core.k8s:
+      api_version: nvidia.com/v1
+      kind: ClusterPolicy
+      name: cluster-policy
+      kubeconfig: "{{ kube_config }}"
+      namespace: gpu-operator
+      merge_type:
+        - merge
+      definition:
+        spec:
+          devicePlugin:
+            config:
+              name: time-slicing-config
+
+  - name: Apply GPU label to nodes
+    kubernetes.core.k8s:
+      kubeconfig: "{{ kube_config }}"
+      state: patched
+      kind: Node
+      name: nvidia.com/device-plugin.config={{ profile }}
+      merge_type:
+        - merge
+      definition:
+        metadata:
+          labels:
+            capi.stackhpc.com/node-group={{ node_group }}
