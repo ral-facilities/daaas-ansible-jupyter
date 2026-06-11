@@ -1,0 +1,194 @@
+---
+jupyterhub_proxy_config:
+  proxy:
+    https:
+      enabled: true
+      hosts:
+        - "{{ host_domain }}"
+      letsencrypt:
+        acmeServer: >-
+          {{
+            'https://acme-staging-v02.api.letsencrypt.org/directory'
+            if staging_cert | bool
+            else 'https://acme-v02.api.letsencrypt.org/directory'
+          }}
+        contactEmail: "{{ contact_email }}"
+    service:
+      loadBalancerIP: "{{ ip_address }}"
+
+jupyterhub_singleuser_config:
+  singleuser:
+    defaultUrl: /lab
+    extraEnv:
+      JUPYTERHUB_ACTIVITY_INTERVAL: "3600"
+    events: true
+    storage:
+      type: dynamic
+      capacity: 10Gi
+      dynamic:
+        storageClass: longhorn
+    startTimeout: 3600
+    cpu:
+      limit: 2
+      guarantee: 0.05
+    memory:
+      limit: 1.8G
+      guarantee: 1.8G
+
+jupyterhub_manila_config: >-
+  {% if manila.required | default(false) %}
+  singleuser:
+    storage:
+      extraVolumes:
+        - name: manila
+          persistentVolumeClaim:
+            claimName: "{{ manila.share_name }}"
+            namespace: default
+            readOnly: true
+      extraVolumeMounts:
+        - name: manila
+          mountPath: "{{ manila.mount_path }}"
+          readOnly: false
+  {% else %}
+  {}
+  {% endif %}
+
+jupyterhub_hub_config:
+  hub:
+    consecutiveFailureLimit: 0
+    extraConfig:
+      myConfig: |
+        c.JupyterHub.activity_resolution = 6000
+        c.JupyterHub.last_activity_interval = 300
+        c.JupyterHub.init_spawners_timeout = 1
+        c.JupyterHub.concurrent_spawn_limit = 2000
+        c.KubeSpawner.k8s_api_threadpool_workers = c.JupyterHub.concurrent_spawn_limit
+        c.KubeSpawner.http_timeout = 60
+
+jupyterhub_scheduling_config:
+  scheduling:
+    userScheduler:
+      enabled: false
+    podPriority:
+      enabled: true
+      defaultPriority: 0
+      userPlaceholderPriority: -10
+    userPlaceholder:
+      enabled: true
+      replicas: 4
+
+jupyterhub_cull_config:
+  cull:
+    enabled: true
+    timeout: 432000
+    every: 3600
+    concurrency: 1
+
+jupyterhub_auth_config: >-
+  {% if iris_iam is defined and iris_iam.required %}
+  hub:
+    config:
+      Authenticator:
+        auto_login: false
+        GenericOAuthenticator:
+          client_id: "{{ iris_iam.client_id }}"
+          client_secret: "{{ iris_iam.client_secret }}"
+          oauth_callback_url: "https://{{ host_domain }}/hub/oauth_callback"
+          authorize_url: https://iris-iam.stfc.ac.uk/authorize
+          token_url: https://iris-iam.stfc.ac.uk/token
+          userdata_url: https://iris-iam.stfc.ac.uk/userinfo
+          scope:
+            - openid
+            - preferred_username
+            - profile
+            - email
+          username_claim: preferred_username
+          userdata_params:
+            state: state
+          claim_groups_key: groups
+          allowed_groups: {{ iris_iam.allowed_groups | to_json }}
+          admin_groups: {{ iris_iam.admin_groups | to_json }}
+          manage_groups: true
+      JupyterHub:
+        authenticator_class: generic-oauth
+  {% else %}
+  hub:
+    config:
+      Authenticator:
+        admin_users: {{ admin_names | map('regex_replace', '^', 'admin-') | list | to_json }}
+        open_signup: false
+        allowed_users: {{ range(1, number_of_users | int + 1) | map('regex_replace', '^', username ~ '-') | list | to_json }}
+      JupyterHub:
+        authenticator_class: shared-password
+      SharedPasswordAuthenticator:
+        admin_password: "{{ admin_password }}"
+        user_password: "{{ user_password }}"
+  {% endif %}
+
+jupyterhub_profile_defaults:
+  cpu_limit: 6
+  cpu_guarantee: 0.05
+  mem_limit: 30G
+
+jupyterhub_profile_list: >-
+  {%- set result = [] -%}
+  {%- for profile in profiles -%}
+    {%- set base_override = {
+      'image': profile.image,
+      'cpu_limit': jupyterhub_profile_defaults.cpu_limit,
+      'cpu_guarantee': jupyterhub_profile_defaults.cpu_guarantee,
+      'mem_limit': jupyterhub_profile_defaults.mem_limit,
+      'mem_guarantee': profile.ram | default(jupyterhub_profile_defaults.mem_limit)
+    } -%}
+
+    {%- if profile.gpu_required | default(false) | bool -%}
+      {%- set base_override = base_override | combine({
+        'tolerations': [{
+          'key': 'nvidia.com/gpu',
+          'operator': 'Equal',
+          'effect': 'NoSchedule'
+        }],
+        'extra_resource_limits': {
+          'nvidia.com/gpu': '1'
+        }
+      }, recursive=True) -%}
+    {%- endif -%}
+
+    {%- if profile.commands | default([]) | select('truthy') | list -%}
+      {%- set lifecycle_override = {
+        'lifecycle_hooks': {
+          'postStart': {
+            'exec': {
+              'command': [
+                'bash',
+                '-c',
+                profile.commands | map('regex_replace', '^(.*)$', '\\1 || true') | join('\n')
+              ]
+            }
+          }
+        }
+      } -%}
+      {%- set base_override = base_override | combine(lifecycle_override, recursive=True) -%}
+    {%- endif -%}
+
+    {%- set kubespawner_override = base_override | combine(profile.kubespawner_override | default({}), recursive=True) -%}
+    {%- set _ = result.append({
+      'display_name': profile.display_name,
+      'description': profile.description | default(''),
+      'default': profile.default | default(false) | bool,
+      'kubespawner_override': kubespawner_override
+    }) -%}
+  {%- endfor -%}
+  {{ result }}
+
+jupyterhub_config_values: >-
+  {{
+    jupyterhub_proxy_config
+    | combine(jupyterhub_singleuser_config, recursive=True)
+    | combine(jupyterhub_manila_config | from_yaml, recursive=True)
+    | combine(jupyterhub_auth_config | from_yaml, recursive=True)
+    | combine({'singleuser': {'profileList': jupyterhub_profile_list}}, recursive=True)
+    | combine(jupyterhub_hub_config, recursive=True)
+    | combine(jupyterhub_scheduling_config, recursive=True)
+    | combine(jupyterhub_cull_config, recursive=True)
+  }}
