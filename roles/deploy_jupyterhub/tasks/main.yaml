@@ -9,12 +9,6 @@
     msg: "Admin password must be at least 32 characters"
   when: admin_password | length < 32
 
-- name: Template config file
-  ansible.builtin.template:
-    src: config.yaml.j2
-    dest: "{{ jhub_config_file }}"
-    mode: "0664"
-
 - name: Install pre-set version of hub. This may take up to 25m to pull various images...
   kubernetes.core.helm:
     chart_ref: "{{ jhub_chart_ref }}"
@@ -25,6 +19,5 @@
     create_namespace: true
     kubeconfig: "{{ kubeconfig_path }}"
     wait: true
-    values_files:
-      - "{{ jhub_config_file }}"
+    release_values: "{{ jupyterhub_config_values }}"
     timeout: "25m"
