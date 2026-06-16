@@ -21,6 +21,6 @@
 - name: Delete jupyterhub loadbalancer
   openstack.cloud.loadbalancer:
     cloud: openstack
-    name: kube_service_{{ cluster_name }}_{{ jhub_deployed_name }}_proxy_public
+    name: kube_service_{{ cluster_name }}_{{ jhub_namespace }}_proxy-public
     state: absent
     delete_floating_ip: false
