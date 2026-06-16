@@ -21,6 +21,7 @@ profiles:
     ram: "5G"
     image: jupyter/minimal-notebook
     gpu_required: false
+    gpu_display_drivers: false
     # Please remove '-'s if no commands required
     commands:
       -

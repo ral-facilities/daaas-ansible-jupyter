@@ -172,6 +172,21 @@ jupyterhub_profile_list: >-
     {%- endif -%}
 
     {%- set kubespawner_override = base_override | combine(profile.kubespawner_override | default({}), recursive=True) -%}
+    {%- if profile.gpu_display_drivers | default(false) | bool -%}
+      {%- set kubespawner_override = kubespawner_override | combine({
+        'volumes': [{
+          'name': 'dri',
+          'hostPath': {
+            'path': '/dev/dri',
+            'type': 'Directory'
+          },
+        }],
+        'volume_mounts': [{
+          'name': 'dri',
+          'mountPath': '/dev/dri'
+        }]
+      }, recursive=True) -%}
+    {%- endif -%}
     {%- set _ = result.append({
       'display_name': profile.display_name,
       'description': profile.description | default(''),
@@ -192,3 +207,4 @@ jupyterhub_config_values: >-
     | combine(jupyterhub_scheduling_config, recursive=True)
     | combine(jupyterhub_cull_config, recursive=True)
   }}
+  
