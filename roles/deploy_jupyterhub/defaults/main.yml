@@ -52,7 +52,6 @@ jupyterhub_manila_config: >-
   {% else %}
   {}
   {% endif %}
-
 jupyterhub_hub_config:
   hub:
     consecutiveFailureLimit: 0
@@ -64,7 +63,6 @@ jupyterhub_hub_config:
         c.JupyterHub.concurrent_spawn_limit = 2000
         c.KubeSpawner.k8s_api_threadpool_workers = c.JupyterHub.concurrent_spawn_limit
         c.KubeSpawner.http_timeout = 60
-
 jupyterhub_scheduling_config:
   scheduling:
     userScheduler:
@@ -124,7 +122,6 @@ jupyterhub_auth_config: >-
         admin_password: "{{ admin_password }}"
         user_password: "{{ user_password }}"
   {% endif %}
-
 jupyterhub_profile_defaults:
   cpu_limit: 6
   cpu_guarantee: 0.05
@@ -140,7 +137,6 @@ jupyterhub_profile_list: >-
       'mem_limit': jupyterhub_profile_defaults.mem_limit,
       'mem_guarantee': profile.ram | default(jupyterhub_profile_defaults.mem_limit)
     } -%}
-
     {%- if profile.gpu_required | default(false) | bool -%}
       {%- set base_override = base_override | combine({
         'tolerations': [{
@@ -152,8 +148,22 @@ jupyterhub_profile_list: >-
           'nvidia.com/gpu': '1'
         }
       }, recursive=True) -%}
+      {%- if profile.gpu_display_drivers | default(false) | bool -%}
+        {%- set base_override = base_override | combine({
+          'volumes': [{
+            'name': 'dri',
+            'hostPath': {
+              'path': '/dev/dri',
+              'type': 'Directory'
+            }
+          }],
+          'volume_mounts': [{
+            'name': 'dri',
+            'mountPath': '/dev/dri'
+          }]
+        }, recursive=True) -%}
+      {%- endif -%}
     {%- endif -%}
-
     {%- if profile.commands | default([]) | select('truthy') | list -%}
       {%- set lifecycle_override = {
         'lifecycle_hooks': {
@@ -170,7 +180,6 @@ jupyterhub_profile_list: >-
       } -%}
       {%- set base_override = base_override | combine(lifecycle_override, recursive=True) -%}
     {%- endif -%}
-
     {%- set kubespawner_override = base_override | combine(profile.kubespawner_override | default({}), recursive=True) -%}
     {%- set _ = result.append({
       'display_name': profile.display_name,
@@ -180,7 +189,6 @@ jupyterhub_profile_list: >-
     }) -%}
   {%- endfor -%}
   {{ result }}
-
 jupyterhub_config_values: >-
   {{
     jupyterhub_proxy_config
