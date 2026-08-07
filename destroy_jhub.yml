@@ -10,4 +10,5 @@
   roles:
     - check_cluster
     - destroy_jupyterhub
+    - destroy_keycloak
     - destroy_longhorn

@@ -5,15 +5,6 @@ staging_cert: true
 
 use_traefik: true
 
-admin_names:
-  -
-  -
-# password must bet atleast 32 characters long to deploy correctly
-admin_password:
-number_of_users:
-username:
-# password must bet atleast 32 characters long to deploy correctly
-user_password:
 profiles:
   - profile1:
     display_name: "Default environment"
@@ -45,8 +36,52 @@ manila:
   mount_path: "/home/jovyan/manila"
   share_name: new-cephfs-share-pvc
 
+# One of ["shared_password", "iris_iam" or "keycloak"]
+authentication_method: "keycloak"
+
+shared_password:
+  # Will be proceeded with "admin-"
+  admin_names:
+    -
+  # password must bet atleast 32 characters long to deploy correctly
+  admin_password:
+  number_of_users:
+  username_prefix: user-
+  # password must bet atleast 32 characters long to deploy correctly
+  user_password:
+keycloak:
+  # Use traefik, or the loadbalancer IP's domain name
+  domain: "keycloak.{{ cluster_name }}.dev-jupyter.stfc.ac.uk"
+  url: "https://keycloak.{{ cluster_name }}.dev-jupyter.stfc.ac.uk"
+  # Not used for Traefik
+  loadBalancerIP:
+  # Details for the default keycloak administrator
+  system_admin_username:
+  system_admin_password:
+  # Realm & OIDC Client details
+  realm: "jupyter"
+  client_id: "jupyterhub-client"
+
+  # A secret token for OIDC i.e. `openssl rand -hex 32`
+  client_secret:
+  claim_groups_key: "groups"
+
+  # Groups configuration
+  user_group: jupyter-user
+  admin_group: jupyter-admin
+
+  # Provisioning settings for user creation
+  # Will be proceeded with "admin-"
+  admin_names:
+    -
+  number_of_users: 3
+
+  username_prefix: user-
+
+  # Default temporary passwords. Users will be prompted to change them after first login
+  default_user_password:
+  default_admin_password:
 iris_iam:
-  required: false
   client_id:
   client_secret:
   admin_groups:

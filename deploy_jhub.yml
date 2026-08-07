@@ -10,6 +10,8 @@
   roles:
     - check_cluster
     - deploy_longhorn
+    - role: deploy_keycloak
+      when: authentication_method == "keycloak"
     - deploy_jupyterhub
     - role: gpu_sharing
       when: gpu_profiles is defined

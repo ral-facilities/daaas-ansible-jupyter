@@ -1,0 +1,89 @@
+---
+keycloak_lb_values:
+  service:
+    type: LoadBalancer
+    loadBalancerIP: "{{ keycloak.loadBalancerIP }}"
+    annotations:
+      # Don't delete the floating ip when deleting loadbalancers
+      # prevents errors when deleting clusters, leave as true
+      loadbalancer.openstack.org/keep-floatingip: "true"
+keycloak_traefik_values:
+  service:
+    type: ClusterIP
+
+  # TODO: Enable listener set
+  # listenerSet:
+  #   enabled: true
+  #   annotations:
+  #     cert-manager.io/cluster-issuer: letsencrypt-http01
+  #     acme.cert-manager.io/http01-parentreffallback: "true"
+  #   parentRef:
+  #     name: traefik-gateway
+  #     namespace: traefik
+  #   listeners:
+  #     - name: websecure
+  #       hostname: "{{ host_domain }}"
+  #       port: 8443
+  #       protocol: HTTPS
+  #       tls:
+  #         mode: Terminate
+  #         certificateRefs:
+  #           - name: keycloak-keycloakx-tls
+  # httpRoute:
+  #   enabled: true
+
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-http01
+    rules:
+      - host: "{{ keycloak.domain }}"
+        paths:
+          - path: '{{ "{{" }} tpl .Values.http.relativePath $ | trimSuffix "/" {{ "}}" }}/'
+            pathType: Prefix
+    tls:
+      - secretName: keycloak-keycloakx-tls
+        hosts:
+          - "{{ keycloak.domain }}"
+    proxy:
+      mode: xforwarded
+  httpRoute:
+    enabled: false
+
+  http:
+    relativePath: "/"
+
+keycloak_base_values:
+  command:
+    - "/opt/keycloak/bin/kc.sh"
+    - "start"
+    - "--http-port=8080"
+    - "--hostname={{ keycloak.url }}"
+    - "--hostname-strict=false"
+  secrets:
+    admin-creds:
+      stringData:
+        user: "{{ keycloak.system_admin_username }}"
+        password: "{{ keycloak.system_admin_password }}"
+  extraEnv: |
+    - name: KC_PROXY_HEADERS
+      value: xforwarded
+    - name: KC_PROXY
+      value: "passthrough"
+    - name: KEYCLOAK_ADMIN
+      valueFrom:
+        secretKeyRef:
+          name: {{ '{{' }} include "keycloak.fullname" . {{ '}}' }}-admin-creds
+          key: user
+    - name: KEYCLOAK_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ '{{' }} include "keycloak.fullname" . {{ '}}' }}-admin-creds
+          key: password
+
+keycloak_values: >-
+  {{
+    keycloak_base_values
+    | combine((keycloak_traefik_values if use_traefik else keycloak_lb_values), recursive=True)
+  }}

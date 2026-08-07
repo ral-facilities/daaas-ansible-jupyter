@@ -117,45 +117,80 @@ jupyterhub_cull_config:
     concurrency: 1
 
 jupyterhub_auth_config: >-
-  {% if iris_iam is defined and iris_iam.required %}
+  {% if authentication_method == 'keycloak' %}
   hub:
     config:
-      Authenticator:
-        auto_login: false
-        GenericOAuthenticator:
-          client_id: "{{ iris_iam.client_id }}"
-          client_secret: "{{ iris_iam.client_secret }}"
-          oauth_callback_url: "https://{{ host_domain }}/hub/oauth_callback"
-          authorize_url: https://iris-iam.stfc.ac.uk/authorize
-          token_url: https://iris-iam.stfc.ac.uk/token
-          userdata_url: https://iris-iam.stfc.ac.uk/userinfo
-          scope:
-            - openid
-            - preferred_username
-            - profile
-            - email
-          username_claim: preferred_username
-          userdata_params:
-            state: state
-          claim_groups_key: groups
-          allowed_groups: {{ iris_iam.allowed_groups | to_json }}
-          admin_groups: {{ iris_iam.admin_groups | to_json }}
-          manage_groups: true
+      GenericOAuthenticator:
+        client_id: "{{ keycloak.client_id }}"
+        client_secret: "{{ keycloak.client_secret }}"
+        oauth_callback_url: "https://{{ host_domain }}/hub/oauth_callback"
+        authorize_url: "{{ keycloak.url }}/realms/{{ keycloak.realm }}/protocol/openid-connect/auth"
+        token_url: "{{ keycloak.url }}/realms/{{ keycloak.realm }}/protocol/openid-connect/token"
+        userdata_url: "{{ keycloak.url }}/realms/{{ keycloak.realm }}/protocol/openid-connect/userinfo"
+        logout_redirect_url: "{{ keycloak.url }}/realms/{{ keycloak.realm }}/protocol/openid-connect/logout"
+        scope:
+          - openid
+          - profile
+          - email
+          - groups
+        login_service: "Keycloak"
+        username_claim: preferred_username
+        userdata_params:
+          state: state
+        validate_server_cert: false
+        tls_verify: false
+  {% if keycloak.user_group is defined or keycloak.admin_group is defined %}
+        claim_groups_key: "{{ keycloak.claim_groups_key | default('groups') }}"
+        allowed_groups: {{ [keycloak.user_group | default(none), keycloak.admin_group | default(none)] | reject('none') | list | to_json }}
+        admin_groups: {{ [keycloak.admin_group | default(none)] | reject('none') | list | to_json }}
+        manage_groups: true
+  {% else %}
+        allow_all: true
+        admin_users: {{ keycloak.admin_users | default([]) | to_json }}
+  {% endif %}
+      JupyterHub:
+        authenticator_class: generic-oauth
+  {% elif authentication_method == 'iris_iam' %}
+  hub:
+    config:
+      GenericOAuthenticator:
+        client_id: "{{ iris_iam.client_id }}"
+        client_secret: "{{ iris_iam.client_secret }}"
+        oauth_callback_url: "https://{{ host_domain }}/hub/oauth_callback"
+        authorize_url: "https://iris-iam.stfc.ac.uk/authorize"
+        token_url: "https://iris-iam.stfc.ac.uk/token"
+        userdata_url: "https://iris-iam.stfc.ac.uk/userinfo"
+        scope:
+          - openid
+          - preferred_username
+          - profile
+          - email
+        username_claim: preferred_username
+        userdata_params:
+          state: state
+        claim_groups_key: groups
+        allowed_groups: {{ iris_iam.allowed_groups | to_json }}
+        admin_groups: {{ iris_iam.admin_groups | to_json }}
+        manage_groups: true
       JupyterHub:
         authenticator_class: generic-oauth
   {% else %}
   hub:
     config:
       Authenticator:
-        admin_users: {{ admin_names | map('regex_replace', '^', 'admin-') | list | to_json }}
+        admin_users: {{ shared_password.admin_names | default([]) | map('regex_replace', '^', 'admin-') | list | to_json }}
         open_signup: false
-        allowed_users: {{ range(1, number_of_users | int + 1) | map('regex_replace', '^', username ~ '-') | list | to_json }}
+        allowed_users: {{ range(1, (shared_password.number_of_users | default(0) | int) + 1)
+                        | map('regex_replace', '^', (shared_password.username_prefix | default('user')))
+                        | list
+                        | to_json }}
       JupyterHub:
         authenticator_class: shared-password
       SharedPasswordAuthenticator:
-        admin_password: "{{ admin_password }}"
-        user_password: "{{ user_password }}"
+        admin_password: "{{ shared_password.admin_password }}"
+        user_password: "{{ shared_password.user_password }}"
   {% endif %}
+
 jupyterhub_profile_defaults:
   cpu_limit: 6
   cpu_guarantee: 0.05

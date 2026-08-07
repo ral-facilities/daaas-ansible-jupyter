@@ -19,3 +19,9 @@ jhub_deployed_name: jupyterhub
 jhub_repo_name: jupyterhub
 jhub_repo_url: https://jupyterhub.github.io/helm-chart/
 jhub_chart_ref: jupyterhub
+
+keycloak_repo_url: "https://codecentric.github.io/helm-charts"
+keycloak_version: "7.2.2"
+keycloak_chart_ref: "keycloakx"
+keycloak_deployed_name: "keycloak"
+keycloak_namespace: "keycloak-system"
