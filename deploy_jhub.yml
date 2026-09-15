@@ -20,5 +20,5 @@
 
   tasks:
     - name: Print Jupyterhub URL
-      debug:
+      ansible.builtin.debug:
         msg: "http://{{ host_domain }}"
