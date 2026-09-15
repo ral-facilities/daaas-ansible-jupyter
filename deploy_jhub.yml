@@ -1,4 +1,13 @@
 ---
+- name: Activate Bootstrap
+  hosts: localhost
+  gather_facts: true
+  vars_files:
+    - group_vars/all.yaml
+    - "group_vars/{{ env }}.yaml"
+  roles:
+    - load_openstack
+
 - name: Deploy JupyterHub
   hosts: bootstrap # Kubectl is configured from this machine
   gather_facts: true

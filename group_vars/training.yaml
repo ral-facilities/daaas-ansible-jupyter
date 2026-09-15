@@ -1,4 +1,7 @@
 ---
+openstack_project: "daaas_jupyterhub_prod"
+cluster_name: "training-cluster" # Fill in the name of the cluster to deploy to
+
 # Todo: Delete once Traefik is enabled on prod, or otherwise change the domain
 host_domain: "training.jupyter.stfc.ac.uk"
 ip_address: "130.246.213.196"
