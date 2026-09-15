@@ -17,3 +17,8 @@
       when: not use_traefik
     - role: change_owner_of_manila_pod
       when: manila.required
+
+  tasks:
+    - name: Print Jupyterhub URL
+      debug:
+        msg: "http://{{ host_domain }}"
