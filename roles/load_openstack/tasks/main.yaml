@@ -1,0 +1,48 @@
+---
+- name: Load project-specific variables
+  no_log: true
+  ansible.builtin.include_vars:
+    file: "{{ openstack_projects_dir }}/{{ openstack_project }}.yaml"
+
+- name: Extract auth
+  no_log: true
+  ansible.builtin.set_fact:
+    os_auth_dict: "{{ clouds_yaml.clouds[openstack_cloud | default('openstack')].auth }}"
+
+- name: Setup venv for openstack
+  ansible.builtin.pip:
+    name:
+      - "openstacksdk>=1.0.0"
+      - python-openstackclient
+    virtualenv: "{{ playbook_dir | dirname }}/.ansible/.openstack_venv"
+    virtualenv_command: "{{ ansible_python_interpreter }} -m venv"
+    state: present
+- vars:
+    ansible_python_interpreter: "{{ playbook_dir | dirname }}/.ansible/.openstack_venv/bin/python"
+  block:
+    - name: Check if bootstrap VM exists
+      openstack.cloud.server_info:
+        filters:
+          tags: ["{{ bootstrap_tag }}"]
+        auth: "{{ os_auth_dict }}"
+        auth_type: "v3applicationcredential"
+      register: bootstrap_vm_info
+
+    - name: Fail if no VM was found
+      ansible.builtin.assert:
+        that:
+          - (bootstrap_vm_info.servers | default([])) | length > 0
+        fail_msg: "Bootstrap VM check failed: No VM matched tag '{{ bootstrap_tag }}'."
+
+    - name: Fail if more than one VM was found
+      ansible.builtin.assert:
+        that:
+          - (bootstrap_vm_info.servers | default([])) | length <= 1
+        fail_msg: "Bootstrap VM check failed: More than one VM matched tag '{{ bootstrap_tag }}' (found {{ (bootstrap_vm_info.servers | default([])) | length }})."
+
+- name: Register bootstrap VM in bootstrap group
+  ansible.builtin.add_host:
+    name: "{{ bootstrap_vm_info.servers[0].name }}"
+    groups: bootstrap
+    ansible_host: "{{ bootstrap_vm_info.servers[0].addresses[bootstrap_network][0].addr }}"
+    ansible_user: "{{ bootstrap_user | default('ubuntu') }}"
