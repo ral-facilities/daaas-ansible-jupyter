@@ -4,7 +4,7 @@ chown_job_spec:
   kind: Job
   metadata:
     name: busybox-chown
-    namespace: openstack-system
+    namespace: jupyterhub
   spec:
     backoffLimit: 2
     template:

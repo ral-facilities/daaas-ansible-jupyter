@@ -76,7 +76,6 @@ jupyterhub_manila_config: >-
         - name: manila
           persistentVolumeClaim:
             claimName: "{{ manila.share_name }}"
-            namespace: default
             readOnly: true
       extraVolumeMounts:
         - name: manila

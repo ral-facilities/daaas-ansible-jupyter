@@ -8,7 +8,7 @@
 - name: Wait for job completion
   kubernetes.core.k8s_info:
     kind: Job
-    namespace: openstack-system
+    namespace: jupyterhub
     name: busybox-chown
     kubeconfig: "{{ kubeconfig_path }}"
   register: job_status
