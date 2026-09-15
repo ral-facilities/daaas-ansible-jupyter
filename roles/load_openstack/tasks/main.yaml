@@ -38,7 +38,9 @@
       ansible.builtin.assert:
         that:
           - (bootstrap_vm_info.servers | default([])) | length <= 1
-        fail_msg: "Bootstrap VM check failed: More than one VM matched tag '{{ bootstrap_tag }}' (found {{ (bootstrap_vm_info.servers | default([])) | length }})."
+        fail_msg: >
+          Bootstrap VM check failed: More than one VM matched tag '{{ bootstrap_tag }}'
+          (found {{ (bootstrap_vm_info.servers | default([])) | length }}).
 
 - name: Register bootstrap VM in bootstrap group
   ansible.builtin.add_host:
