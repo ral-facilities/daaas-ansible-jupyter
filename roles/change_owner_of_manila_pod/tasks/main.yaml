@@ -1,14 +1,8 @@
 ---
-- name: Copy over init job
-  ansible.builtin.copy:
-    src: init_job.yaml
-    dest: "{{ init_job_path }}"
-    mode: "0664"
-
 - name: Apply init job
   kubernetes.core.k8s:
     state: present
-    src: "{{ init_job_path }}"
+    definition: "{{ chown_job_spec }}"
     kubeconfig: "{{ kubeconfig_path }}"
 
 - name: Wait for job completion
