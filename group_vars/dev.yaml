@@ -1,19 +1,11 @@
 ---
-host_domain: "jupyter.{{ cluster_name }}.dev-jupyter.stfc.ac.uk"
+base_domain: "{{ cluster_name }}.dev-jupyter.stfc.ac.uk"
+host_domain: "jupyter.{{ base_domain }}"
 longhorn_ip: "130.246.83.115"
 staging_cert: true
 
 use_traefik: true
 
-admin_names:
-  -
-  -
-# password must bet atleast 32 characters long to deploy correctly
-admin_password:
-number_of_users:
-username:
-# password must bet atleast 32 characters long to deploy correctly
-user_password:
 profiles:
   - profile1:
     display_name: "Default environment"
@@ -45,8 +37,42 @@ manila:
   mount_path: "/home/jovyan/manila"
   share_name: new-cephfs-share-pvc
 
+# One of ["shared_password", "iris_iam" or "keycloak"]:
+# shared_password:
+# Use the common authentication values below. All users share a password. All admins share another.
+
+# keycloak:
+# Use the common authentication values below, but deploy a Keycloak instance using additional settings below.
+# Users/Admins are prompted to change their password ater first login
+
+# iris_iam:
+# Use the IRIS-IAM oauth service for authentication
+authentication_method: "keycloak"
+
+# These username/password options apply to shared_password and keycloak
+common_authentication_values:
+  # Passwords must be at least 32 characters for shared_password
+  # For shared_password, these are permanent
+  # For keycloak, these are temporary. Users/admins change them after first login
+  admin_password:
+  user_password:
+  # This will be suffixed with "-1", "-2"...
+  user_username_prefix:
+  number_of_users:
+  # These will be prefixed with "admin"
+  admin_names:
+    -
+    -
+
+keycloak:
+  # Use traefik, or the loadbalancer IP's domain name
+  domain: "keycloak.{{ base_domain }}"
+
+  # Not used for Traefik
+  loadBalancerIP:
+  # A secret token for OIDC i.e. `openssl rand -hex 32`
+  client_secret:
 iris_iam:
-  required: false
   client_id:
   client_secret:
   admin_groups:
