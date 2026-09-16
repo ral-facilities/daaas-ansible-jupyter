@@ -73,8 +73,8 @@ keycloak:
   admin_names:
     -
   number_of_users: 3
-
-  username_prefix: user-
+  # Usernames will be <prefix>-1 -2 -3...
+  username_prefix: user
 
   # Default temporary passwords. Users will be prompted to change them after first login
   default_user_password:
