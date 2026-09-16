@@ -48,6 +48,16 @@
   loop_control:
     loop_var: deploy_keycloak_group_name
 
+- name: Assign Keycloak realm-admin role to admin group
+  community.general.keycloak_client_rolemapping:
+    realm: "{{ keycloak.realm }}"
+    group_name: "{{ keycloak.admin_group }}"
+    client_id: "realm-management"
+    roles:
+      - name: "realm-admin"
+    state: present
+  args: "{{ kc_auth }}"
+
 - name: Create 'groups' client scope
   community.general.keycloak_clientscope:
     realm: "{{ keycloak.realm }}"
