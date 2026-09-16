@@ -59,13 +59,13 @@ keycloak_base_values:
     - "/opt/keycloak/bin/kc.sh"
     - "start"
     - "--http-port=8080"
-    - "--hostname={{ keycloak.url }}"
+    - "--hostname={{ keycloak_defaults.url }}"
     - "--hostname-strict=false"
   secrets:
     admin-creds:
       stringData:
-        user: "{{ keycloak.system_admin_username }}"
-        password: "{{ keycloak.system_admin_password }}"
+        user: "{{ keycloak_defaults.system_admin_username }}"
+        password: "{{ keycloak_defaults.system_admin_password }}"
   extraEnv: |
     - name: KC_PROXY_HEADERS
       value: xforwarded

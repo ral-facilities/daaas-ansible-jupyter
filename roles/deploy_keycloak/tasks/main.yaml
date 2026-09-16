@@ -1,5 +1,5 @@
 ---
-- name: Install keycloak. (Waits up to 10 minutes)
+- name: Install keycloak (Waits up to 10 minutes)
   kubernetes.core.helm:
     chart_ref: "{{ keycloak_chart_ref }}"
     chart_repo_url: "{{ keycloak_repo_url }}"
@@ -15,22 +15,22 @@
 - name: Define auth dict for Keycloak modules
   ansible.builtin.set_fact:
     kc_auth:
-      auth_keycloak_url: "{{ keycloak.url }}"
+      auth_keycloak_url: "{{ keycloak_defaults.url }}"
       auth_realm: "master"
-      auth_username: "{{ keycloak.system_admin_username }}"
-      auth_password: "{{ keycloak.system_admin_password }}"
+      auth_username: "{{ keycloak_defaults.system_admin_username }}"
+      auth_password: "{{ keycloak_defaults.system_admin_password }}"
       validate_certs: false
 
 - name: Ensure target realm exists
   community.general.keycloak_realm:
-    realm: "{{ keycloak.realm }}"
+    realm: "{{ keycloak_defaults.realm }}"
     enabled: true
     state: present
   args: "{{ kc_auth }}"
 
 - name: Fetch existing Keycloak users to preserve idempotency
   community.general.keycloak_realm_users_info:
-    realm: "{{ keycloak.realm }}"
+    realm: "{{ keycloak_defaults.realm }}"
   args: "{{ kc_auth }}"
   register: kc_existing_users_info
 
@@ -40,18 +40,18 @@
 
 - name: Create default Groups in Keycloak
   community.general.keycloak_group:
-    realm: "{{ keycloak.realm }}"
+    realm: "{{ keycloak_defaults.realm }}"
     name: "{{ deploy_keycloak_group_name }}"
     state: present
   args: "{{ kc_auth }}"
-  loop: "{{ [keycloak.admin_group, keycloak.user_group] }}"
+  loop: "{{ [keycloak_defaults.admin_group, keycloak_defaults.user_group] }}"
   loop_control:
     loop_var: deploy_keycloak_group_name
 
 - name: Assign Keycloak realm-admin role to admin group
   community.general.keycloak_client_rolemapping:
-    realm: "{{ keycloak.realm }}"
-    group_name: "{{ keycloak.admin_group }}"
+    realm: "{{ keycloak_defaults.realm }}"
+    group_name: "{{ keycloak_defaults.admin_group }}"
     client_id: "realm-management"
     roles:
       - name: "realm-admin"
@@ -60,7 +60,7 @@
 
 - name: Create 'groups' client scope
   community.general.keycloak_clientscope:
-    realm: "{{ keycloak.realm }}"
+    realm: "{{ keycloak_defaults.realm }}"
     name: "groups"
     protocol: openid-connect
     description: "Scope for user groups"
@@ -69,7 +69,7 @@
         protocol: openid-connect
         protocolMapper: oidc-group-membership-mapper
         config:
-          claim.name: "{{ keycloak.claim_groups_key | default('groups') }}"
+          claim.name: "{{ keycloak_defaults.claim_groups_key | default('groups') }}"
           full.path: "false"
           id.token.claim: "true"
           access.token.claim: "true"
@@ -79,8 +79,8 @@
 
 - name: Create JupyterHub OpenID Client with Groups Mapper
   community.general.keycloak_client:
-    realm: "{{ keycloak.realm }}"
-    client_id: "{{ keycloak.client_id }}"
+    realm: "{{ keycloak_defaults.realm }}"
+    client_id: "{{ keycloak_defaults.client_id }}"
     client_authenticator_type: client-secret
     secret: "{{ keycloak.client_secret }}"
     public_client: false
@@ -98,7 +98,7 @@
 
 - name: Create Batch Admin Users
   community.general.keycloak_user:
-    realm: "{{ keycloak.realm }}"
+    realm: "{{ keycloak_defaults.realm }}"
     username: "admin-{{ deploy_keycloak_admin_name }}"
     enabled: true
     credentials: >-
@@ -107,7 +107,7 @@
         if ('admin-' ~ deploy_keycloak_admin_name) in kc_existing_usernames
         else [{
           'type': 'password',
-          'value': keycloak.default_admin_password,
+          'value': common_authentication_values.admin_password,
           'temporary': true
         }]
       }}
@@ -118,33 +118,33 @@
         else ['UPDATE_PASSWORD']
       }}
     groups:
-      - name: "{{ keycloak.admin_group }}"
-      - name: "{{ keycloak.user_group }}"
+      - name: "{{ keycloak_defaults.admin_group }}"
+      - name: "{{ keycloak_defaults.user_group }}"
     state: present
   args: "{{ kc_auth }}"
-  loop: "{{ keycloak.admin_names }}"
+  loop: "{{ common_authentication_values.admin_names }}"
   loop_control:
     loop_var: deploy_keycloak_admin_name
 
 - name: Create Batch Standard Users
   community.general.keycloak_user:
-    realm: "{{ keycloak.realm }}"
+    realm: "{{ keycloak_defaults.realm }}"
     username: >-
       {{
-        (keycloak.username_prefix | default('user'))
+        (common_authentication_values.user_username_prefix | default('user'))
       }}-{{ deploy_keycloak_user_index }}
     enabled: true
     credentials: >-
       {{
         omit
         if (
-          (keycloak.username_prefix | default('user'))
+          (common_authentication_values.user_username_prefix | default('user'))
           ~ '-'
           ~ deploy_keycloak_user_index
         ) in kc_existing_usernames
         else [{
           'type': 'password',
-          'value': keycloak.default_user_password,
+          'value': common_authentication_values.user_password,
           'temporary': true
         }]
       }}
@@ -152,16 +152,16 @@
       {{
         omit
         if (
-          (keycloak.username_prefix | default('user'))
+          (common_authentication_values.user_username_prefix | default('user'))
           ~ '-'
           ~ deploy_keycloak_user_index
         ) in kc_existing_usernames
         else ['UPDATE_PASSWORD']
       }}
     groups:
-      - name: "{{ keycloak.user_group }}"
+      - name: "{{ keycloak_defaults.user_group }}"
     state: present
   args: "{{ kc_auth }}"
-  loop: "{{ range(1, (keycloak.number_of_users | int) + 1) | list }}"
+  loop: "{{ range(1, (common_authentication_values.number_of_users | int) + 1) | list }}"
   loop_control:
     loop_var: deploy_keycloak_user_index

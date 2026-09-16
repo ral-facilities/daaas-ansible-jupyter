@@ -121,13 +121,13 @@ jupyterhub_auth_config: >-
   hub:
     config:
       GenericOAuthenticator:
-        client_id: "{{ keycloak.client_id }}"
+        client_id: "{{ keycloak_defaults.client_id }}"
         client_secret: "{{ keycloak.client_secret }}"
         oauth_callback_url: "https://{{ host_domain }}/hub/oauth_callback"
-        authorize_url: "{{ keycloak.url }}/realms/{{ keycloak.realm }}/protocol/openid-connect/auth"
-        token_url: "{{ keycloak.url }}/realms/{{ keycloak.realm }}/protocol/openid-connect/token"
-        userdata_url: "{{ keycloak.url }}/realms/{{ keycloak.realm }}/protocol/openid-connect/userinfo"
-        logout_redirect_url: "{{ keycloak.url }}/realms/{{ keycloak.realm }}/protocol/openid-connect/logout"
+        authorize_url: "{{ keycloak_defaults.url }}/realms/{{ keycloak_defaults.realm }}/protocol/openid-connect/auth"
+        token_url: "{{ keycloak_defaults.url }}/realms/{{ keycloak_defaults.realm }}/protocol/openid-connect/token"
+        userdata_url: "{{ keycloak_defaults.url }}/realms/{{ keycloak_defaults.realm }}/protocol/openid-connect/userinfo"
+        logout_redirect_url: "{{ keycloak_defaults.url }}/realms/{{ keycloak_defaults.realm }}/protocol/openid-connect/logout"
         scope:
           - openid
           - profile
@@ -139,14 +139,14 @@ jupyterhub_auth_config: >-
           state: state
         validate_server_cert: false
         tls_verify: false
-  {% if keycloak.user_group is defined or keycloak.admin_group is defined %}
-        claim_groups_key: "{{ keycloak.claim_groups_key | default('groups') }}"
-        allowed_groups: {{ [keycloak.user_group | default(none), keycloak.admin_group | default(none)] | reject('none') | list | to_json }}
-        admin_groups: {{ [keycloak.admin_group | default(none)] | reject('none') | list | to_json }}
+  {% if keycloak_defaults.user_group is defined or keycloak_defaults.admin_group is defined %}
+        claim_groups_key: "{{ keycloak_defaults.claim_groups_key | default('groups') }}"
+        allowed_groups: {{ [keycloak_defaults.user_group | default(none), keycloak_defaults.admin_group | default(none)] | reject('none') | list | to_json }}
+        admin_groups: {{ [keycloak_defaults.admin_group | default(none)] | reject('none') | list | to_json }}
         manage_groups: true
   {% else %}
         allow_all: true
-        admin_users: {{ keycloak.admin_users | default([]) | to_json }}
+        admin_users: {{ keycloak_defaults.admin_users | default([]) | to_json }}
   {% endif %}
       JupyterHub:
         authenticator_class: generic-oauth
@@ -178,17 +178,17 @@ jupyterhub_auth_config: >-
   hub:
     config:
       Authenticator:
-        admin_users: {{ shared_password.admin_names | default([]) | map('regex_replace', '^', 'admin-') | list | to_json }}
+        admin_users: {{ common_authentication_values.admin_names | default([]) | map('regex_replace', '^', 'admin-') | list | to_json }}
         open_signup: false
-        allowed_users: {{ range(1, (shared_password.number_of_users | default(0) | int) + 1)
-                        | map('regex_replace', '^', (shared_password.username_prefix | default('user')))
+        allowed_users: {{ range(1, (common_authentication_values.number_of_users | default(0) | int) + 1)
+                        | map('regex_replace', '^', (common_authentication_values.user_username_prefix | default('user')) ~ '-')
                         | list
                         | to_json }}
       JupyterHub:
         authenticator_class: shared-password
       SharedPasswordAuthenticator:
-        admin_password: "{{ shared_password.admin_password }}"
-        user_password: "{{ shared_password.user_password }}"
+        admin_password: "{{ common_authentication_values.admin_password }}"
+        user_password: "{{ common_authentication_values.user_password }}"
   {% endif %}
 
 jupyterhub_profile_defaults:
