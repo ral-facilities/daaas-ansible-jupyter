@@ -1,4 +1,3 @@
-
 # Ansible JupyterHub Server with Prometheus Stacks for STFC Cloud Openstacks
 Provides a JupyterHub Service on an existing Openstack Cluster. This uses the helm chart provided by [ZeroToJupyterHub](https://github.com/jupyterhub/zero-to-jupyterhub-k8s).
 ## Contents
@@ -61,11 +60,12 @@ sudo snap install helm --classic
 5. Update the dynamic inventory details in `openstack.yml`
 6. Fill in the variables for your given environment in `group_vars/<environment>.yaml`
       <br>
-    - `admin names`: List of admin names (that get prefixed with `admin-`)
-    - `admin_password`: Password for admin accounts
-    - `number of users`: The number of user accounts to create
-    - `username`: They base username for the users (gets suffixed with `-1`, `-2`, etc)
-    - `user_password`: Password for user accounts
+    - `openstack_project`: The Openstack project to deploy the cluster into
+    - `cluster_name`: The name of the cluster to deploy to
+    - `host_domain`: The domain the JupyterHub instance will be served on (can reference `{{ cluster_name }}`)
+    - `longhorn_ip`: Floating IP to associate with the Longhorn UI load balancer
+    - `staging_cert`: Whether to use Let's Encrypt's staging environment (avoids hitting renewal rate limits while testing)
+    - `use_traefik`: Whether to use Traefik as the ingress/proxy instead of the default autohttps setup
       </p>
       <br>
     - `profiles`: list of profiles/environments that get deployed to Jupyterhub
@@ -91,8 +91,37 @@ sudo snap install helm --classic
     - `share_name`: what to call the manila share
       </p>
       <br>
-    - `iris_iam`: Details for supporting IRIS-IAM authentication
-    - `required`: If IRIS-IAM is required
+    - `authentication_method`: Which authentication method to use for JupyterHub. One of `shared_password`, `iris_iam` or `keycloak`
+      </p>
+      <br>
+    - `shared_password`: Settings used when `authentication_method` is `shared_password`
+    - `admin_names`: List of admin names (that get prefixed with `admin-`)
+    - `admin_password`: Password for admin accounts (must be at least 32 characters long)
+    - `number_of_users`: The number of user accounts to create
+    - `username_prefix`: The base username for the users (gets suffixed with `-1`, `-2`, etc)
+    - `user_password`: Password for user accounts (must be at least 32 characters long)
+      </p>
+      <br>
+    - `keycloak`: Settings used when `authentication_method` is `keycloak`
+    - `domain`: Domain Keycloak is served on when using Traefik, or the loadbalancer IP's domain name otherwise (can reference `{{ cluster_name }}`)
+    - `url`: Full URL Keycloak is served on
+    - `loadBalancerIP`: Floating IP for Keycloak's load balancer (not used for Traefik)
+    - `system_admin_username`: Username for the default Keycloak administrator
+    - `system_admin_password`: Password for the default Keycloak administrator
+    - `realm`: Keycloak realm to use for JupyterHub
+    - `client_id`: OIDC client id registered in Keycloak
+    - `client_secret`: A secret token for OIDC (eg generated with `openssl rand -hex 32`)
+    - `claim_groups_key`: The claim key Keycloak uses to expose group membership
+    - `user_group`: Keycloak group name for regular JupyterHub users
+    - `admin_group`: Keycloak group name for JupyterHub admins
+    - `admin_names`: List of admin names to provision (that get prefixed with `admin-`)
+    - `number_of_users`: The number of user accounts to provision
+    - `username_prefix`: The base username for provisioned users (gets suffixed with `-1`, `-2`, etc)
+    - `default_user_password`: Default temporary password for provisioned users (users are prompted to change it after first login)
+    - `default_admin_password`: Default temporary password for provisioned admins
+      </p>
+      <br>
+    - `iris_iam`: Settings used when `authentication_method` is `iris_iam`
     - `client_id`: Client id from IRIS-IAM
     - `client_secret`: Client secret from IRIS-IAM
     - `admin_groups`: List of IRIS-IAM groups to use as admins

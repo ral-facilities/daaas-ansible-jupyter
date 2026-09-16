@@ -1,4 +1,7 @@
 ---
+openstack_project: "daaas_jupyterhub_dev"
+cluster_name: "dev-cluster" # Fill in the name of the cluster to deploy to
+
 host_domain: "jupyter.{{ cluster_name }}.dev-jupyter.stfc.ac.uk"
 longhorn_ip: "130.246.83.115"
 staging_cert: true

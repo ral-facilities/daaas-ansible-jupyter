@@ -1,4 +1,7 @@
 ---
+openstack_project: "daaas_jupyterhub_prod"
+cluster_name: "jhub" # Fill in the name of the cluster to deploy to
+
 # TODO: Switch to using Traefik once it's enabled on Prod
 host_domain: "jupyter.stfc.ac.uk"
 ip_address: "130.246.213.94"

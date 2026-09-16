@@ -19,3 +19,9 @@ jhub_deployed_name: jupyterhub
 jhub_repo_name: jupyterhub
 jhub_repo_url: https://jupyterhub.github.io/helm-chart/
 jhub_chart_ref: jupyterhub
+
+openstack_projects_dir: "{{ playbook_dir }}/openstack_projects"
+
+bootstrap_user: "ubuntu"
+bootstrap_network: "Internal"
+bootstrap_tag: "kubernetes-ansible-bootstrap"
