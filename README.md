@@ -91,7 +91,7 @@ sudo snap install helm --classic
     - `share_name`: what to call the manila share
       </p>
       <br>
-    - `authentication_method`: Which authentication method to use for JupyterHub. One of `shared_password`, `iris_iam` or `keycloak`
+    - `authentication_method`: Which authentication method to use for JupyterHub. One of `shared_password`, `iris_iam`, `keycloak` or `ada_jwt`
       </p>
       <br>
     - `shared_password`: Settings used when `authentication_method` is `shared_password`
@@ -126,6 +126,15 @@ sudo snap install helm --classic
     - `client_secret`: Client secret from IRIS-IAM
     - `admin_groups`: List of IRIS-IAM groups to use as admins
     - `allowed_groups`: List of IRIS-IAM groups to use for users
+      </p>
+      <br>
+    - `ada_jwt_defaults`/`ada_jwt`: Settings used when `authentication_method` is `ada_jwt`. Users log in at `https://<host_domain>/hub/login?token=<jwt>` with a short-lived, single-use JWT signed by ada
+    - `username_claim_field`: JWT claim used as the JupyterHub username (`ada_jwt_defaults` in `all.yaml`)
+    - `admin_claim_field`: Boolean JWT claim marking the user as an admin (`ada_jwt_defaults` in `all.yaml`)
+    - `course_claim_field`: JWT claim holding the course ID, which must match `ada_jwt.course_id` (`ada_jwt_defaults` in `all.yaml`)
+    - `jwt_key_algorithm`: Algorithm the JWT is signed with, e.g. `RS256` (`ada_jwt_defaults` in `all.yaml`)
+    - `public_key`: PEM public key used to verify tokens. Same for all environments. Must be `ansible-vault` encrypted, e.g. `ansible-vault encrypt_string --stdin-name public_key < jwt_public_key.pem`, and never committed unencrypted (`ada_jwt_defaults` in `all.yaml`)
+    - `ada_jwt.course_id`: ID of the ada course whose tokens are accepted. Set per environment (`dev.yaml`, `prod.yaml`, `training.yaml`)
 
 6. Make sure kubeconfig is in ~/.kube
 7. Run the playbook and pass in name of the kubeconfig filename (without extnsion) and the deployment version:
