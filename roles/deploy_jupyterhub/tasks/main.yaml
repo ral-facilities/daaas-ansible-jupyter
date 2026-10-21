@@ -1,7 +1,7 @@
 ---
 - name: Check authentication method
   ansible.builtin.assert:
-    that: "authentication_method in ['shared_password', 'iris_iam', 'keycloak']"
+    that: "authentication_method in ['shared_password', 'iris_iam', 'keycloak', 'ada_jwt']"
 
 - name: Verify shared password settings
   when: authentication_method == "shared_password"
@@ -15,6 +15,16 @@
       ansible.builtin.fail:
         msg: "Admin password must be at least 32 characters"
       when: shared_password.admin_password | length < 32
+
+- name: Verify ada JWT settings
+  when: authentication_method == "ada_jwt"
+  ansible.builtin.assert:
+    that:
+      - ada_jwt.course_id | default('', true) | length > 0
+      - ada_jwt.course_id is not match('^REPLACE')
+      - ada_jwt_defaults.public_key | default('', true) | length > 0
+      - ada_jwt_defaults.public_key is not match('^REPLACE')
+    fail_msg: "ada_jwt.course_id and ada_jwt_defaults.public_key must be set to real values"
 
 # TODO: Enable ListenerSet
 # - name: Deploy listenerset
