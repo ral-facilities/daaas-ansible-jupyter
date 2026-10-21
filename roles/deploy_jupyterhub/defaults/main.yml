@@ -203,12 +203,36 @@ jupyterhub_auth_config_shared_password:
         admin_password: "{{ common_authentication_values.admin_password }}"
         user_password: "{{ common_authentication_values.user_password }}"
 
+# The authenticator source is mounted into the hub pod
+jupyterhub_auth_config_ada_jwt:
+  hub:
+    config:
+      JupyterHub:
+        authenticator_class: jwt_authenticator.JWTAuthenticator
+      Authenticator:
+        allow_all: true
+      JWTAuthenticator:
+        username_claim_field: "{{ ada_jwt_defaults.username_claim_field }}"
+        admin_claim_field: "{{ ada_jwt_defaults.admin_claim_field }}"
+        jwt_key_algorithm: "{{ ada_jwt_defaults.jwt_key_algorithm }}"
+        expected_course_id: "{{ ada_jwt.course_id }}"
+        jwt_public_key: "{{ ada_jwt_defaults.public_key }}"
+    extraFiles:
+      jwt_authenticator:
+        mountPath: /usr/local/etc/jupyterhub/ada/jwt_authenticator.py
+        stringData: "{{ lookup('file', role_path + '/files/jwt_authenticator.py') }}"
+    extraConfig:
+      adaJwt: |
+        import sys
+        sys.path.insert(0, "/usr/local/etc/jupyterhub/ada")
+
 # Only the selected method's config is templated
 jupyterhub_auth_config: >-
   {{
     jupyterhub_auth_config_keycloak if authentication_method == 'keycloak'
     else jupyterhub_auth_config_iris_iam if authentication_method == 'iris_iam'
     else jupyterhub_auth_config_shared_password if authentication_method == 'shared_password'
+    else jupyterhub_auth_config_ada_jwt if authentication_method == 'ada_jwt'
     else {}
   }}
 
