@@ -6,3 +6,4 @@
 .ansible/
 .vscode/
 ansible.log
+*.pyc
