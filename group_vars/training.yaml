@@ -38,7 +38,7 @@ manila:
   mount_path: "/home/jovyan/manila"
   share_name: new-cephfs-share-pvc
 
-# One of ["shared_password", "iris_iam" or "keycloak"]:
+# One of ["shared_password", "iris_iam", "keycloak" or "ada_jwt"]:
 # shared_password:
 # Use the common authentication values below. All users share a password. All admins share another.
 
@@ -48,6 +48,9 @@ manila:
 
 # iris_iam:
 # Use the IRIS-IAM oauth service for authentication
+
+# ada_jwt:
+# Log in via a signed JWT from ada. Uses ada_jwt in group_vars/all.yaml, plus the course ID below
 authentication_method: "shared_password"
 
 # These username/password options apply to shared_password and keycloak
@@ -65,6 +68,10 @@ common_authentication_values:
     -
     -
 
+ada_jwt:
+  # Expected training course ID
+  # Tokens for any other ada course are rejected
+  course_id:
 keycloak:
   # Use traefik, or the loadbalancer IP's domain name
   domain: "keycloak.{{ base_domain }}"
