@@ -1,0 +1,26 @@
+---
+- name: Check if keycloak is in helm releases
+  kubernetes.core.helm_info:
+    release_namespace: "{{ keycloak_namespace }}"
+    release_name: "{{ keycloak_deployed_name }}"
+    kubeconfig: "{{ kubeconfig_path }}"
+  register: keycloak_helm
+
+- name: Uninstall keycloak
+  when: keycloak_helm.status is defined
+  block:
+    - name: Helm uninstall keycloak
+      kubernetes.core.helm:
+        release_namespace: "{{ keycloak_namespace }}"
+        release_name: "{{ keycloak_deployed_name }}"
+        state: absent
+        wait: true
+        kubeconfig: "{{ kubeconfig_path }}"
+        timeout: "10m"
+
+- name: Delete keycloak loadbalancer
+  openstack.cloud.loadbalancer:
+    cloud: openstack
+    name: kube_service_{{ cluster_name }}_{{ keycloak_namespace }}_keycloak-keycloakx-http
+    state: absent
+    delete_floating_ip: false
