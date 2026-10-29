@@ -54,3 +54,9 @@ keycloak_defaults:
   # Groups configuration
   user_group: jupyter-user
   admin_group: jupyter-admin
+
+openstack_projects_dir: "{{ playbook_dir }}/openstack_projects"
+
+bootstrap_user: "ubuntu"
+bootstrap_network: "Internal"
+bootstrap_tag: "kubernetes-ansible-bootstrap"
