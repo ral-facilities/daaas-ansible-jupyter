@@ -48,3 +48,4 @@
     groups: bootstrap
     ansible_host: "{{ bootstrap_vm_info.servers[0].addresses[bootstrap_network][0].addr }}"
     ansible_user: "{{ bootstrap_user | default('ubuntu') }}"
+    ansible_python_interpreter: "{{ bootstrap_venv_path | default('/opt/ansible-venv') }}/bin/python"

@@ -41,7 +41,11 @@
 
 - name: Delete longhorn loadbalancer
   openstack.cloud.loadbalancer:
-    cloud: openstack
+    auth: "{{ hostvars['localhost'].os_auth_dict }}"
+    auth_type: "v3applicationcredential"
     name: kube_service_{{ cluster_name }}_{{ longhorn_namespace }}_{{ longhorn_deployed_name }}-frontend
     state: absent
     delete_floating_ip: false
+  delegate_to: localhost
+  vars:
+    ansible_python_interpreter: "{{ playbook_dir | dirname }}/.ansible/.openstack_venv/bin/python"
