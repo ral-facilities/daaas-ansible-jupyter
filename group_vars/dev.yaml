@@ -1,4 +1,7 @@
 ---
+openstack_project: "daaas_jupyterhub_dev"
+cluster_name: "dev-cluster" # Fill in the name of the cluster to deploy to
+
 base_domain: "{{ cluster_name }}.dev-jupyter.stfc.ac.uk"
 host_domain: "jupyter.{{ base_domain }}"
 longhorn_ip: "130.246.83.115"
