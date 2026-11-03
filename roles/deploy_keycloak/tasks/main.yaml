@@ -22,14 +22,14 @@
       validate_certs: false
 
 - name: Ensure target realm exists
-  community.general.keycloak_realm:
+  middleware_automation.keycloak.keycloak_realm:
     realm: "{{ keycloak_defaults.realm }}"
     enabled: true
     state: present
   args: "{{ kc_auth }}"
 
 - name: Fetch existing Keycloak users to preserve idempotency
-  community.general.keycloak_realm_users_info:
+  middleware_automation.keycloak.keycloak_realm_users_info:
     realm: "{{ keycloak_defaults.realm }}"
   args: "{{ kc_auth }}"
   register: kc_existing_users_info
@@ -39,7 +39,7 @@
     kc_existing_usernames: "{{ kc_existing_users_info.users | map(attribute='username') | list }}"
 
 - name: Create default Groups in Keycloak
-  community.general.keycloak_group:
+  middleware_automation.keycloak.keycloak_group:
     realm: "{{ keycloak_defaults.realm }}"
     name: "{{ deploy_keycloak_group_name }}"
     state: present
@@ -49,7 +49,7 @@
     loop_var: deploy_keycloak_group_name
 
 - name: Assign Keycloak realm-admin role to admin group
-  community.general.keycloak_client_rolemapping:
+  middleware_automation.keycloak.keycloak_client_rolemapping:
     realm: "{{ keycloak_defaults.realm }}"
     group_name: "{{ keycloak_defaults.admin_group }}"
     client_id: "realm-management"
@@ -59,7 +59,7 @@
   args: "{{ kc_auth }}"
 
 - name: Create 'groups' client scope
-  community.general.keycloak_clientscope:
+  middleware_automation.keycloak.keycloak_client_scope:
     realm: "{{ keycloak_defaults.realm }}"
     name: "groups"
     protocol: openid-connect
@@ -78,7 +78,7 @@
   args: "{{ kc_auth }}"
 
 - name: Create JupyterHub OpenID Client with Groups Mapper
-  community.general.keycloak_client:
+  middleware_automation.keycloak.keycloak_client:
     realm: "{{ keycloak_defaults.realm }}"
     client_id: "{{ keycloak_defaults.client_id }}"
     client_authenticator_type: client-secret
@@ -97,7 +97,7 @@
   args: "{{ kc_auth }}"
 
 - name: Create Batch Admin Users
-  community.general.keycloak_user:
+  middleware_automation.keycloak.keycloak_user:
     realm: "{{ keycloak_defaults.realm }}"
     username: "admin-{{ deploy_keycloak_admin_name }}"
     enabled: true
@@ -127,7 +127,7 @@
     loop_var: deploy_keycloak_admin_name
 
 - name: Create Batch Standard Users
-  community.general.keycloak_user:
+  middleware_automation.keycloak.keycloak_user:
     realm: "{{ keycloak_defaults.realm }}"
     username: >-
       {{
