@@ -72,6 +72,10 @@ keycloak:
   loadBalancerIP:
   # A secret token for OIDC i.e. `openssl rand -hex 32`
   client_secret:
+  # Keycloak user profile: whether users must provide these on first login
+  require_email: false
+  require_first_name: false
+  require_last_name: false
 iris_iam:
   client_id:
   client_secret:
