@@ -5,11 +5,9 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
-      # "unsafe" is required if we add ansible-vault in future
-      # but it will also disable duplicate-key checks
-      # ansible-lint --fix also yaml lints, but set that to pre-push only
+      # "unsafe" is required for ansible-vault
       - id: check-yaml
-      # args: ["--unsafe"]
+        args: ["--unsafe"]
       - id: mixed-line-ending
         args: ["--fix=lf"]
   - repo: https://github.com/pycqa/isort
